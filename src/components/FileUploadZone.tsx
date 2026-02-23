@@ -23,24 +23,48 @@ const FileUploadZone = ({ onUploadSuccess }: FileUploadZoneProps) => {
       setIsLoading(true);
 
       try {
+        const baseUrl = import.meta.env.VITE_BACKEND_URL;
+
+        if (!baseUrl) {
+          throw new Error(
+            "Falta VITE_BACKEND_URL. Crea un archivo .env en la raíz del frontend."
+          );
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch("/api/upload-stats", {
+        const response = await fetch(`${baseUrl}/api/upload-stats`, {
           method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
           body: formData,
         });
 
         if (!response.ok) {
-          throw new Error(`Error del servidor: ${response.status}`);
+          let message = `Error del servidor: ${response.status}`;
+
+          try {
+            const errorBody = await response.json();
+            if (errorBody?.error) {
+              message = errorBody.error;
+            }
+          } catch {
+            // ignore JSON parsing errors
+          }
+
+          throw new Error(message);
         }
 
         const data = await response.json();
         onUploadSuccess(data);
       } catch (err) {
-        // If the API fails, use mock data for demo purposes
-        const { MOCK_DATA } = await import("@/types/stats");
-        onUploadSuccess(MOCK_DATA);
+        const message =
+          err instanceof Error
+            ? err.message
+            : "No se pudo subir el archivo. Inténtalo de nuevo.";
+        setError(message);
       } finally {
         setIsLoading(false);
       }
