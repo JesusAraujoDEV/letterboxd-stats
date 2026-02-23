@@ -20,6 +20,10 @@ export interface MovieStats {
   deletedCommentsCount: number;
   deletedListsCount: number;
   deletedListsNames: string[];
+  totalLikedFilms: number;
+  totalLikedLists: number;
+  totalLikedReviews: number;
+  topLikedYears: { year: string; count: number }[];
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -70,4 +74,12 @@ export const MOCK_DATA: MovieStats = {
   deletedCommentsCount: 8,
   deletedListsCount: 3,
   deletedListsNames: ["movies club", "movies date", "pelis irl con mi novia"],
+  totalLikedFilms: 128,
+  totalLikedLists: 3,
+  totalLikedReviews: 738,
+  topLikedYears: [
+    { year: "2025", count: 30 },
+    { year: "2024", count: 18 },
+    { year: "2023", count: 10 },
+  ],
 };

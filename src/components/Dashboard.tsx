@@ -5,6 +5,7 @@ import ProfileHeader from "./ProfileHeader";
 import StatsGrid from "./StatsGrid";
 import ReleaseYearTimeline from "./ReleaseYearTimeline";
 import GraveyardSection from "./GraveyardSection";
+import LikesSection from "./LikesSection";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -27,6 +28,14 @@ const Dashboard = ({ data }: DashboardProps) => {
       <ReleaseYearTimeline
         moviesByReleaseYear={data.moviesByReleaseYear}
         averageRatingByReleaseYear={data.averageRatingByReleaseYear}
+      />
+
+      <LikesSection
+        totalMovies={data.totalMovies}
+        totalLikedFilms={data.totalLikedFilms}
+        totalLikedLists={data.totalLikedLists}
+        totalLikedReviews={data.totalLikedReviews}
+        topLikedYears={data.topLikedYears}
       />
 
       {/* Charts Row */}
