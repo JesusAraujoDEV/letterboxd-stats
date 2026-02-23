@@ -12,7 +12,7 @@ interface DashboardProps {
 const Dashboard = ({ data }: DashboardProps) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <ProfileHeader profile={data.profile} />
+      <ProfileHeader profile={data.profile ?? { username: "Usuario" }} />
 
       <StatsGrid
         totalMovies={data.totalMovies}

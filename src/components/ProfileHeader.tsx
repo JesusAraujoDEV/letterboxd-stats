@@ -7,11 +7,12 @@ type Profile = {
 };
 
 interface ProfileHeaderProps {
-  profile: Profile;
+  profile?: Profile;
 }
 
 const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
-  const initial = profile.username?.trim()?.charAt(0)?.toUpperCase() ?? "U";
+  const username = profile?.username ?? "Usuario";
+  const initial = username.trim().charAt(0)?.toUpperCase() ?? "U";
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-[#14181c] p-6">
@@ -25,9 +26,9 @@ const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
         </div>
         <div>
           <h2 className="text-2xl font-heading font-bold text-foreground">
-            {profile.username}
+            {username}
           </h2>
-          {profile.location && (
+          {profile?.location && (
             <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />
               <span>{profile.location}</span>
@@ -35,7 +36,7 @@ const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
           )}
         </div>
       </div>
-      {profile.bio && (
+      {profile?.bio && (
         <p className="text-sm text-gray-400 leading-relaxed">{profile.bio}</p>
       )}
     </div>
