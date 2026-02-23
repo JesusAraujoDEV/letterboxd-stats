@@ -100,7 +100,8 @@ const ReleaseYearTimeline = ({
             tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
-            domain={isAverage ? [0, 5] : [0, "auto"]}
+            domain={isAverage ? [0.5, 5] : [0, "auto"]}
+            ticks={isAverage ? [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5] : undefined}
           />
           <Tooltip content={<CustomTooltip metric={chartMetric} />} cursor={false} />
           <Area

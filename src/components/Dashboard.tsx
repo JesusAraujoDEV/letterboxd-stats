@@ -22,7 +22,10 @@ const Dashboard = ({ data }: DashboardProps) => {
         totalComments={data.totalComments}
       />
 
-      <ReleaseYearTimeline data={data.moviesByReleaseYear} />
+      <ReleaseYearTimeline
+        moviesByReleaseYear={data.moviesByReleaseYear}
+        averageRatingByReleaseYear={data.averageRatingByReleaseYear}
+      />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
