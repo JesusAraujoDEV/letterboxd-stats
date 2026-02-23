@@ -16,7 +16,7 @@ const Index = () => {
             <Clapperboard className="w-5 h-5 text-primary" />
           </div>
           <h1 className="text-xl font-heading font-bold text-foreground">
-            CineStats
+            StatsBoxd
           </h1>
           <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full ml-1">
             beta
