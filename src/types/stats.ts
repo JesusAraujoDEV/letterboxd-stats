@@ -15,6 +15,11 @@ export interface MovieStats {
   averageRatingByReleaseYear: { year: string; average: number }[];
   topYears: { year: string; count: number }[];
   topTags: { tag: string; count: number }[];
+  deletedDiaryCount: number;
+  deletedReviewsCount: number;
+  deletedCommentsCount: number;
+  deletedListsCount: number;
+  deletedListsNames: string[];
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -60,4 +65,9 @@ export const MOCK_DATA: MovieStats = {
     { tag: "rewatch", count: 15 },
     { tag: "horror", count: 12 },
   ],
+  deletedDiaryCount: 15,
+  deletedReviewsCount: 3,
+  deletedCommentsCount: 8,
+  deletedListsCount: 3,
+  deletedListsNames: ["movies club", "movies date", "pelis irl con mi novia"],
 };

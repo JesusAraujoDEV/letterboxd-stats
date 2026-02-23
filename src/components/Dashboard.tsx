@@ -4,6 +4,7 @@ import TagCloud from "./TagCloud";
 import ProfileHeader from "./ProfileHeader";
 import StatsGrid from "./StatsGrid";
 import ReleaseYearTimeline from "./ReleaseYearTimeline";
+import GraveyardSection from "./GraveyardSection";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -36,6 +37,14 @@ const Dashboard = ({ data }: DashboardProps) => {
 
       {/* Tags */}
       <TagCloud tags={data.topTags} />
+
+      <GraveyardSection
+        deletedDiaryCount={data.deletedDiaryCount}
+        deletedReviewsCount={data.deletedReviewsCount}
+        deletedCommentsCount={data.deletedCommentsCount}
+        deletedListsCount={data.deletedListsCount}
+        deletedListsNames={data.deletedListsNames}
+      />
     </div>
   );
 };
