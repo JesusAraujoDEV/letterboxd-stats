@@ -17,6 +17,7 @@ const Dashboard = ({ data }: DashboardProps) => {
 
       <StatsGrid
         totalMovies={data.totalMovies}
+        totalLoggedMovies={data.totalLoggedMovies}
         totalWatchlist={data.totalWatchlist}
         totalReviews={data.totalReviews}
         totalComments={data.totalComments}

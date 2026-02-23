@@ -5,6 +5,7 @@ export interface MovieStats {
     bio?: string;
   };
   totalMovies: number;
+  totalLoggedMovies: number;
   totalWatchlist: number;
   totalReviews: number;
   totalComments: number;
@@ -23,6 +24,7 @@ export const MOCK_DATA: MovieStats = {
     bio: "I like movies",
   },
   totalMovies: 232,
+  totalLoggedMovies: 180,
   totalWatchlist: 121,
   totalReviews: 45,
   totalComments: 12,

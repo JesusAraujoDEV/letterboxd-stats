@@ -1,7 +1,14 @@
-import { CalendarClock, Clapperboard, MessageCircle, PenSquare } from "lucide-react";
+import {
+  BookOpen,
+  CalendarClock,
+  Clapperboard,
+  MessageCircle,
+  PenSquare,
+} from "lucide-react";
 
 interface StatsGridProps {
   totalMovies: number;
+  totalLoggedMovies: number;
   totalWatchlist: number;
   totalReviews: number;
   totalComments: number;
@@ -9,6 +16,7 @@ interface StatsGridProps {
 
 const StatsGrid = ({
   totalMovies,
+  totalLoggedMovies,
   totalWatchlist,
   totalReviews,
   totalComments,
@@ -18,6 +26,11 @@ const StatsGrid = ({
       label: "Películas Vistas",
       value: totalMovies,
       icon: Clapperboard,
+    },
+    {
+      label: "Películas Logeadas",
+      value: totalLoggedMovies,
+      icon: BookOpen,
     },
     {
       label: "En Watchlist",
@@ -37,7 +50,7 @@ const StatsGrid = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
