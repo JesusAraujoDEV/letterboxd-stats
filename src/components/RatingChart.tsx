@@ -5,6 +5,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 interface RatingChartProps {
@@ -12,6 +13,16 @@ interface RatingChartProps {
 }
 
 const STAR_LEVELS = ["0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"];
+
+const getColorForRating = (rating: string) => {
+  const numRating = Number.parseFloat(rating);
+
+  if (numRating <= 1.5) return "#2cb6e9";
+  if (numRating <= 2.5) return "#00e054";
+  if (numRating <= 3.5) return "#c7e600";
+  if (numRating <= 4.5) return "#ff8000";
+  return "#ff2c2c";
+};
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload?.length) {
@@ -34,6 +45,7 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
   const data = STAR_LEVELS.map((star) => ({
     name: star,
     count: distribution[star] || 0,
+    color: getColorForRating(star),
   }));
 
   return (
@@ -43,12 +55,6 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
       </h3>
       <ResponsiveContainer width="100%" height={260}>
         <BarChart data={data} barCategoryGap="20%">
-          <defs>
-            <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00e054" stopOpacity={1} />
-              <stop offset="100%" stopColor="#00b947" stopOpacity={1} />
-            </linearGradient>
-          </defs>
           <XAxis
             dataKey="name"
             tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 14 }}
@@ -62,7 +68,11 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="url(#ratingGradient)" />
+          <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
