@@ -3,33 +3,26 @@ import {
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 
 interface RatingChartProps {
   distribution: Record<string, number>;
 }
 
-const COLORS = [
-  "hsl(0, 72%, 51%)",
-  "hsl(24, 95%, 53%)",
-  "hsl(38, 92%, 50%)",
-  "hsl(145, 60%, 45%)",
-  "hsl(210, 80%, 55%)",
-];
+const STAR_LEVELS = ["0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"];
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload?.length) {
+    const { name, count } = payload[0].payload;
     return (
       <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg">
         <p className="text-foreground font-heading font-semibold">
-          {payload[0].payload.label}
+          {name} estrellas
         </p>
         <p className="text-muted-foreground text-sm">
-          {payload[0].value} películas
+          {count} películas
         </p>
       </div>
     );
@@ -38,10 +31,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const RatingChart = ({ distribution }: RatingChartProps) => {
-  const data = Object.entries(distribution).map(([rating, count]) => ({
-    rating,
-    count,
-    label: `${"★".repeat(Number(rating))}${"☆".repeat(5 - Number(rating))}`,
+  const data = STAR_LEVELS.map((star) => ({
+    name: star,
+    count: distribution[star] || 0,
   }));
 
   return (
@@ -51,13 +43,14 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
       </h3>
       <ResponsiveContainer width="100%" height={260}>
         <BarChart data={data} barCategoryGap="20%">
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(220, 15%, 18%)"
-            vertical={false}
-          />
+          <defs>
+            <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#00e054" stopOpacity={1} />
+              <stop offset="100%" stopColor="#00b947" stopOpacity={1} />
+            </linearGradient>
+          </defs>
           <XAxis
-            dataKey="rating"
+            dataKey="name"
             tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 14 }}
             axisLine={false}
             tickLine={false}
@@ -69,11 +62,7 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index]} />
-            ))}
-          </Bar>
+          <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="url(#ratingGradient)" />
         </BarChart>
       </ResponsiveContainer>
     </div>
