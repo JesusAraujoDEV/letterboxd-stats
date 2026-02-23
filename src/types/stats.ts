@@ -1,5 +1,13 @@
 export interface MovieStats {
+  profile: {
+    username: string;
+    location?: string;
+    bio?: string;
+  };
   totalMovies: number;
+  totalWatchlist: number;
+  totalReviews: number;
+  totalComments: number;
   averageRating: number;
   ratingDistribution: Record<string, number>;
   topYears: { year: string; count: number }[];
@@ -7,7 +15,15 @@ export interface MovieStats {
 }
 
 export const MOCK_DATA: MovieStats = {
+  profile: {
+    username: "Cinephile",
+    location: "Latam",
+    bio: "I like movies",
+  },
   totalMovies: 232,
+  totalWatchlist: 121,
+  totalReviews: 45,
+  totalComments: 12,
   averageRating: 3.94,
   ratingDistribution: { "1": 2, "2": 5, "3": 15, "4": 80, "5": 130 },
   topYears: [
