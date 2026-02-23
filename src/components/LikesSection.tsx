@@ -2,6 +2,7 @@ import { Film, Heart, List, ThumbsUp } from "lucide-react";
 
 interface LikesSectionProps {
   totalMovies: number;
+  totalLoggedMovies: number;
   totalLikedFilms: number;
   totalLikedLists: number;
   totalLikedReviews: number;
@@ -10,6 +11,7 @@ interface LikesSectionProps {
 
 const LikesSection = ({
   totalMovies,
+  totalLoggedMovies,
   totalLikedFilms,
   totalLikedLists,
   totalLikedReviews,
@@ -17,6 +19,9 @@ const LikesSection = ({
 }: LikesSectionProps) => {
   const lovePercent = totalMovies
     ? Math.round((totalLikedFilms / totalMovies) * 100)
+    : 0;
+  const loggedLoveRate = totalLoggedMovies
+    ? Math.round((totalLikedFilms / totalLoggedMovies) * 100)
     : 0;
 
   const cards = [
@@ -42,14 +47,20 @@ const LikesSection = ({
 
   return (
     <section className="rounded-2xl border border-border bg-gradient-to-br from-[#1b0b14] via-[#14181c] to-[#0f1418] p-6">
-      <div className="flex flex-col gap-2 mb-6">
+      <div className="flex flex-col gap-3 mb-6">
         <h3 className="text-lg font-heading font-semibold text-foreground">
           Corazón de Crítico ❤️
         </h3>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">
-          <Film className="h-3.5 w-3.5" />
-          Le has dado like al {lovePercent}% de las películas que has visto
-        </span>
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs text-orange-200">
+            <Film className="h-3.5 w-3.5" />
+            Amor Histórico: {lovePercent}% de todo lo visto
+          </span>
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
+            <Heart className="h-3.5 w-3.5" />
+            Amor de Diario: {loggedLoveRate}% de lo registrado
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

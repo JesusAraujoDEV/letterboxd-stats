@@ -32,6 +32,7 @@ const Dashboard = ({ data }: DashboardProps) => {
 
       <LikesSection
         totalMovies={data.totalMovies}
+        totalLoggedMovies={data.totalLoggedMovies}
         totalLikedFilms={data.totalLikedFilms}
         totalLikedLists={data.totalLikedLists}
         totalLikedReviews={data.totalLikedReviews}
