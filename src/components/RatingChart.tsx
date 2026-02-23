@@ -57,7 +57,11 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
         <BarChart data={data} barCategoryGap="20%">
           <XAxis
             dataKey="name"
-            tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 14 }}
+            interval={0}
+            tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 11 }}
+            angle={-45}
+            textAnchor="end"
+            height={50}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `${v}★`}
