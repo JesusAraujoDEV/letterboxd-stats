@@ -36,6 +36,40 @@ const Index = () => {
                 Sube tu archivo de exportación de Letterboxd para visualizar tus
                 hábitos cinematográficos.
               </p>
+              <div className="mt-6 rounded-xl border border-border bg-card/60 p-4 text-left shadow-sm">
+                <h3 className="text-sm font-semibold text-foreground">
+                  ¿Dónde descargo mi .zip?
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Puedes descargar tu archivo de datos desde
+                  {" "}
+                  <a
+                    href="https://letterboxd.com/settings/data/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary underline underline-offset-4"
+                  >
+                    letterboxd.com/settings/data/
+                  </a>
+                  .
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Haz clic en el botón
+                  {" "}
+                  <span className="font-medium text-foreground">
+                    Export your data
+                  </span>
+                  , descarga el archivo y luego arrástralo aquí abajo.
+                </p>
+                <div className="mt-4 overflow-hidden rounded-lg border border-border">
+                  <img
+                    src="/images/instruction.png"
+                    alt="Instrucciones para exportar en Letterboxd"
+                    className="w-full h-auto"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
             </div>
             <FileUploadZone onUploadSuccess={setStats} />
           </div>
