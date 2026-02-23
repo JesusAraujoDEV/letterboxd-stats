@@ -3,6 +3,7 @@ import TopYearsChart from "./TopYearsChart";
 import TagCloud from "./TagCloud";
 import ProfileHeader from "./ProfileHeader";
 import StatsGrid from "./StatsGrid";
+import ReleaseYearTimeline from "./ReleaseYearTimeline";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -20,6 +21,8 @@ const Dashboard = ({ data }: DashboardProps) => {
         totalReviews={data.totalReviews}
         totalComments={data.totalComments}
       />
+
+      <ReleaseYearTimeline data={data.moviesByReleaseYear} />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

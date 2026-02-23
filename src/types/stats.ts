@@ -10,6 +10,7 @@ export interface MovieStats {
   totalComments: number;
   averageRating: number;
   ratingDistribution: Record<string, number>;
+  moviesByReleaseYear: { year: string; count: number }[];
   topYears: { year: string; count: number }[];
   topTags: { tag: string; count: number }[];
 }
@@ -26,6 +27,14 @@ export const MOCK_DATA: MovieStats = {
   totalComments: 12,
   averageRating: 3.94,
   ratingDistribution: { "1": 2, "2": 5, "3": 15, "4": 80, "5": 130 },
+  moviesByReleaseYear: [
+    { year: "1958", count: 1 },
+    { year: "1980", count: 3 },
+    { year: "1999", count: 8 },
+    { year: "2010", count: 14 },
+    { year: "2020", count: 22 },
+    { year: "2025", count: 33 },
+  ],
   topYears: [
     { year: "2025", count: 33 },
     { year: "2024", count: 27 },
