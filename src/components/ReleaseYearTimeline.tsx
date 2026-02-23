@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Area,
   AreaChart,
@@ -8,19 +9,28 @@ import {
 } from "recharts";
 
 interface ReleaseYearTimelineProps {
-  data: { year: string; count: number }[];
+  moviesByReleaseYear: { year: string; count: number }[];
+  averageRatingByReleaseYear: { year: string; average: number }[];
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, metric }: any) => {
   if (active && payload?.length) {
-    const { year, count } = payload[0].payload;
+    const { year, count, average } = payload[0].payload;
+    const label =
+      metric === "average"
+        ? average === 0
+          ? "Sin calificar"
+          : `${Number(average).toFixed(2)} estrellas`
+        : count === 1
+          ? "1 película"
+          : `${count} películas`;
     return (
       <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg">
         <p className="text-foreground font-heading font-semibold">
           Año {year}
         </p>
         <p className="text-muted-foreground text-sm">
-          {count} películas vistas
+          {label}
         </p>
       </div>
     );
@@ -28,14 +38,51 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const ReleaseYearTimeline = ({ data }: ReleaseYearTimelineProps) => {
+const ReleaseYearTimeline = ({
+  moviesByReleaseYear,
+  averageRatingByReleaseYear,
+}: ReleaseYearTimelineProps) => {
+  const [chartMetric, setChartMetric] = useState<"count" | "average">("count");
+  const isAverage = chartMetric === "average";
+  const chartData = isAverage ? averageRatingByReleaseYear : moviesByReleaseYear;
+  const dataKey = isAverage ? "average" : "count";
+
   return (
     <div className="bg-card rounded-xl p-6 border border-border">
-      <h3 className="text-lg font-heading font-semibold text-foreground mb-4">
-        Evolución por Año de Estreno
-      </h3>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <h3 className="text-lg font-heading font-semibold text-foreground">
+          Evolución por Año de Estreno
+        </h3>
+        <div className="inline-flex rounded-full border border-border bg-background/40 p-1">
+          <button
+            type="button"
+            onClick={() => setChartMetric("count")}
+            className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+              chartMetric === "count"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Totales
+          </button>
+          <button
+            type="button"
+            onClick={() => setChartMetric("average")}
+            className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+              chartMetric === "average"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Promedio
+          </button>
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart
+          data={chartData}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="releaseYearFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2cb6e9" stopOpacity={0.45} />
@@ -47,21 +94,24 @@ const ReleaseYearTimeline = ({ data }: ReleaseYearTimelineProps) => {
             tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
-            minTickGap={24}
+            minTickGap={30}
           />
           <YAxis
             tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
+            domain={isAverage ? [0, 5] : [0, "auto"]}
           />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip metric={chartMetric} />} cursor={false} />
           <Area
             type="monotone"
-            dataKey="count"
+            dataKey={dataKey}
             stroke="#2cb6e9"
             strokeWidth={2}
             fill="url(#releaseYearFill)"
             activeDot={{ r: 4 }}
+            connectNulls={false}
+            baseValue={0}
           />
         </AreaChart>
       </ResponsiveContainer>
