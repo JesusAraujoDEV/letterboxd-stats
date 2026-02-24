@@ -28,6 +28,7 @@ export interface MovieStats {
   topGenres: TasteItem[];
   topCountries: TasteItem[];
   topLanguages: TasteItem[];
+  allCountries: TasteItem[];
 }
 
 export interface TopDecade {
@@ -303,5 +304,18 @@ export const MOCK_DATA: MovieStats = {
     { name: "Portugués", count: 8 },
     { name: "Mandarín", count: 7 },
     { name: "Hindi", count: 6 },
+  ],
+  allCountries: [
+    { name: "United States of America", count: 140 },
+    { name: "United Kingdom", count: 35 },
+    { name: "France", count: 30 },
+    { name: "Spain", count: 18 },
+    { name: "Japan", count: 16 },
+    { name: "South Korea", count: 12 },
+    { name: "Italy", count: 10 },
+    { name: "Germany", count: 8 },
+    { name: "Mexico", count: 7 },
+    { name: "Argentina", count: 5 },
+    { name: "Venezuela", count: 2 },
   ],
 };
