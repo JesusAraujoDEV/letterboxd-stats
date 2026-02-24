@@ -27,6 +27,7 @@ const Dashboard = ({ data }: DashboardProps) => {
         totalWatchlist={data.totalWatchlist}
         totalReviews={data.totalReviews}
         totalComments={data.totalComments}
+        totalHoursWatched={data.totalHoursWatched}
       />
 
       <ReleaseYearTimeline

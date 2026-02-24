@@ -9,6 +9,7 @@ export interface MovieStats {
   totalWatchlist: number;
   totalReviews: number;
   totalComments: number;
+  totalHoursWatched: number;
   averageRating: number;
   ratingDistribution: Record<string, number>;
   moviesByReleaseYear: { year: string; count: number }[];
@@ -67,6 +68,7 @@ export const MOCK_DATA: MovieStats = {
   totalWatchlist: 121,
   totalReviews: 45,
   totalComments: 12,
+  totalHoursWatched: 1250,
   averageRating: 3.94,
   ratingDistribution: { "1": 2, "2": 5, "3": 15, "4": 80, "5": 130 },
   moviesByReleaseYear: [

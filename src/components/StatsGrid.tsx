@@ -1,6 +1,7 @@
 import {
   BookOpen,
   CalendarClock,
+  Clock,
   Clapperboard,
   MessageCircle,
   PenSquare,
@@ -12,6 +13,7 @@ interface StatsGridProps {
   totalWatchlist: number;
   totalReviews: number;
   totalComments: number;
+  totalHoursWatched: number;
 }
 
 const StatsGrid = ({
@@ -20,6 +22,7 @@ const StatsGrid = ({
   totalWatchlist,
   totalReviews,
   totalComments,
+  totalHoursWatched,
 }: StatsGridProps) => {
   const cards = [
     {
@@ -47,10 +50,16 @@ const StatsGrid = ({
       value: totalComments,
       icon: MessageCircle,
     },
+    {
+      label: "Horas Vistas",
+      value: `${totalHoursWatched.toLocaleString()} h`,
+      icon: Clock,
+      accent: "text-amber-400",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
@@ -60,7 +69,7 @@ const StatsGrid = ({
           >
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{card.label}</p>
-              <Icon className="h-5 w-5 text-[#00e054]" />
+              <Icon className={`h-5 w-5 ${card.accent ?? "text-[#00e054]"}`} />
             </div>
             <p className="mt-3 text-2xl font-heading font-bold text-foreground">
               {card.value}
