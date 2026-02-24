@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Clapperboard } from "lucide-react";
 import FileUploadZone from "@/components/FileUploadZone";
 import Dashboard from "@/components/Dashboard";
 import type { MovieStats } from "@/types/stats";
+import { useMovies } from "@/context/MoviesContext";
 
 const Index = () => {
   const [stats, setStats] = useState<MovieStats | null>(null);
+  const { setAllMovies } = useMovies();
+
+  useEffect(() => {
+    setAllMovies(stats?.allMovies ?? []);
+  }, [setAllMovies, stats]);
 
   return (
     <div className="min-h-screen bg-background">

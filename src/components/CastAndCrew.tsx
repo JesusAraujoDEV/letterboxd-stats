@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -49,7 +50,13 @@ const Toggle = ({
   </div>
 );
 
-const PersonCard = ({ person }: { person: PersonItem }) => {
+const PersonCard = ({
+  person,
+  onClick,
+}: {
+  person: PersonItem;
+  onClick: () => void;
+}) => {
   const [hasError, setHasError] = useState(false);
   const imageUrl = useMemo(() => {
     if (!person?.profilePath) return null;
@@ -59,7 +66,18 @@ const PersonCard = ({ person }: { person: PersonItem }) => {
   const showFallback = !imageUrl || hasError;
 
   return (
-    <div className="flex flex-col items-center gap-2 text-center">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      className="flex flex-col items-center gap-2 text-center cursor-pointer"
+    >
       <div className="relative w-full aspect-[2/3] overflow-hidden rounded-lg bg-[#1a1f24]">
         {showFallback ? (
           <div className="flex h-full w-full items-center justify-center">
@@ -91,6 +109,7 @@ const CastAndCrew = ({
   topDirectorsAllTime,
   topDirectorsLogged,
 }: CastAndCrewProps) => {
+  const navigate = useNavigate();
   const [actorView, setActorView] = useState<"allTime" | "logged">("allTime");
   const [directorView, setDirectorView] = useState<"allTime" | "logged">(
     "allTime"
@@ -118,7 +137,13 @@ const CastAndCrew = ({
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {(actorData ?? []).slice(0, 10).map((person) => (
-            <PersonCard key={`actor-${person.name}`} person={person} />
+            <PersonCard
+              key={`actor-${person.name}`}
+              person={person}
+              onClick={() =>
+                navigate(`/explore?actor=${encodeURIComponent(person.name)}`)
+              }
+            />
           ))}
         </div>
       </div>
@@ -138,7 +163,13 @@ const CastAndCrew = ({
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {(directorData ?? []).slice(0, 10).map((person) => (
-            <PersonCard key={`director-${person.name}`} person={person} />
+            <PersonCard
+              key={`director-${person.name}`}
+              person={person}
+              onClick={() =>
+                navigate(`/explore?director=${encodeURIComponent(person.name)}`)
+              }
+            />
           ))}
         </div>
       </div>

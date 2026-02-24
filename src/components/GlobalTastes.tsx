@@ -1,4 +1,5 @@
 import { Clapperboard, Globe, MessageCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TasteItem {
   name: string;
@@ -22,10 +23,12 @@ const GlobalTastes = ({
   topCountries,
   topLanguages,
 }: GlobalTastesProps) => {
+  const navigate = useNavigate();
   const cards = [
     {
       title: "Géneros Favoritos",
       icon: Clapperboard,
+      param: "genre",
       items: topGenres ?? [],
       accent: "from-emerald-400/30 via-emerald-400/10 to-transparent",
       bar: "bg-emerald-400/25",
@@ -33,6 +36,7 @@ const GlobalTastes = ({
     {
       title: "Países de Origen",
       icon: Globe,
+      param: "country",
       items: topCountries ?? [],
       accent: "from-sky-400/30 via-sky-400/10 to-transparent",
       bar: "bg-sky-400/25",
@@ -40,6 +44,7 @@ const GlobalTastes = ({
     {
       title: "Idiomas",
       icon: MessageCircle,
+      param: "language",
       items: topLanguages ?? [],
       accent: "from-violet-400/30 via-violet-400/10 to-transparent",
       bar: "bg-violet-400/25",
@@ -80,8 +85,14 @@ const GlobalTastes = ({
 
               <div className="space-y-3">
                 {card.items?.slice(0, 10)?.map((item) => (
-                  <div
+                  <button
                     key={`${card.title}-${item.name}`}
+                    type="button"
+                    onClick={() =>
+                      navigate(
+                        `/explore?${card.param}=${encodeURIComponent(item.name)}`
+                      )
+                    }
                     className="relative overflow-hidden rounded-lg border border-white/5 bg-[#14181c] px-3 py-2"
                     title={`Has visto ${item.count} películas de ${item.name}`}
                   >
@@ -101,7 +112,7 @@ const GlobalTastes = ({
                         {item.count}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 ))}
 
                 {card.items?.length === 0 && (

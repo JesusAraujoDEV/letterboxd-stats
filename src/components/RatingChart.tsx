@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 interface RatingChartProps {
   distribution: Record<string, number>;
@@ -42,11 +43,19 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const RatingChart = ({ distribution }: RatingChartProps) => {
+  const navigate = useNavigate();
   const data = STAR_LEVELS.map((star) => ({
     name: star,
     count: distribution[star] || 0,
     color: getColorForRating(star),
   }));
+
+  const handleClick = (entry: any) => {
+    const rating = entry?.payload?.name ?? entry?.name;
+    if (rating) {
+      navigate(`/explore?rating=${encodeURIComponent(rating)}`);
+    }
+  };
 
   return (
     <div className="bg-card rounded-xl p-6 border border-border">
@@ -54,7 +63,7 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
         Distribución de Calificaciones
       </h3>
       <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={data} barCategoryGap="20%">
+        <BarChart data={data} barCategoryGap="20%" className="cursor-pointer">
           <XAxis
             dataKey="name"
             interval={0}
@@ -72,7 +81,7 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+          <Bar dataKey="count" radius={[8, 8, 0, 0]} onClick={handleClick}>
             {data.map((entry) => (
               <Cell key={entry.name} fill={entry.color} />
             ))}

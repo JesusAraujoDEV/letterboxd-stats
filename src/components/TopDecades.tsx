@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import type { TopDecade, TopDecadeMovie } from "@/types/stats";
 
@@ -72,6 +73,7 @@ const PosterCard = ({ movie }: { movie: TopDecadeMovie }) => {
 };
 
 const TopDecades = ({ topDecades }: TopDecadesProps) => {
+  const navigate = useNavigate();
   if (!topDecades || topDecades.length === 0) return null;
 
   return (
@@ -98,9 +100,17 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
                 <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                   Década
                 </p>
-                <p className="mt-2 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      `/explore?decade=${encodeURIComponent(decade?.decade ?? "")}`
+                    )
+                  }
+                  className="mt-2 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 cursor-pointer"
+                >
                   {decade?.decade ?? ""}
-                </p>
+                </button>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground">Average</p>

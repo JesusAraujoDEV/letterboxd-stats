@@ -35,6 +35,7 @@ export interface MovieStats {
   topActorsLogged: PersonStat[];
   topDirectorsAllTime: PersonStat[];
   topDirectorsLogged: PersonStat[];
+  allMovies: MovieItem[];
 }
 
 export interface MostRewatchedItem {
@@ -65,6 +66,29 @@ export interface PersonStat {
   name: string;
   count: number;
   profilePath: string | null;
+}
+
+export interface MovieDiaryLog {
+  rating?: number | null;
+  watchedDate?: string | null;
+}
+
+export interface MovieItem {
+  title: string;
+  posterPath?: string | null;
+  releaseYear?: number | string | null;
+  decade?: string | null;
+  liked?: boolean | null;
+  genres?: string[];
+  countries?: string[];
+  languages?: string[];
+  rewatchCount?: number | null;
+  actors?: string[];
+  directors?: string[];
+  rating?: number | null;
+  watchedYear?: number | string | null;
+  tags?: string[];
+  diaryLogs?: MovieDiaryLog[];
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -597,4 +621,5 @@ export const MOCK_DATA: MovieStats = {
       profilePath: "/9y0pO4yqZ4Zb9f0G1qR9n3d6b7m.jpg",
     },
   ],
+  allMovies: [],
 };

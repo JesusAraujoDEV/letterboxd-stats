@@ -5,6 +5,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 interface TopYearsChartProps {
   topYears: { year: string; count: number }[];
@@ -35,6 +36,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const TopYearsChart = ({ topYears }: TopYearsChartProps) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-card rounded-xl p-6 border border-border">
       <h3 className="text-lg font-heading font-semibold text-foreground mb-4">
@@ -53,6 +55,12 @@ const TopYearsChart = ({ topYears }: TopYearsChartProps) => {
               outerRadius={85}
               strokeWidth={2}
               stroke="hsl(220, 20%, 7%)"
+              onClick={(entry: any) => {
+                const year = entry?.name ?? entry?.payload?.year;
+                if (year) {
+                  navigate(`/explore?watchedYear=${encodeURIComponent(year)}`);
+                }
+              }}
             >
               {topYears.map((_, index) => (
                 <Cell key={index} fill={COLORS[index % COLORS.length]} />
@@ -63,7 +71,23 @@ const TopYearsChart = ({ topYears }: TopYearsChartProps) => {
         </ResponsiveContainer>
         <div className="flex flex-col gap-2">
           {topYears.map((item, index) => (
-            <div key={item.year} className="flex items-center gap-2">
+            <div
+              key={item.year}
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                navigate(`/explore?watchedYear=${encodeURIComponent(item.year)}`)
+              }
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  navigate(
+                    `/explore?watchedYear=${encodeURIComponent(item.year)}`
+                  );
+                }
+              }}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <div
                 className="w-3 h-3 rounded-full shrink-0"
                 style={{ backgroundColor: COLORS[index % COLORS.length] }}

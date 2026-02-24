@@ -1,4 +1,5 @@
 import { Hash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TagCloudProps {
   tags: { tag: string; count: number }[];
@@ -13,6 +14,7 @@ const TAG_COLORS = [
 ];
 
 const TagCloud = ({ tags }: TagCloudProps) => {
+  const navigate = useNavigate();
   const maxCount = Math.max(...tags.map((t) => t.count));
 
   return (
@@ -24,11 +26,15 @@ const TagCloud = ({ tags }: TagCloudProps) => {
         {tags.map((item, index) => {
           const scale = 0.85 + (item.count / maxCount) * 0.35;
           return (
-            <span
+            <button
               key={item.tag}
+              type="button"
+              onClick={() =>
+                navigate(`/explore?tags=${encodeURIComponent(item.tag)}`)
+              }
               className={`
                 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium
-                transition-transform hover:scale-105 cursor-default
+                transition-transform hover:scale-105 cursor-pointer
                 ${TAG_COLORS[index % TAG_COLORS.length]}
               `}
               style={{ fontSize: `${scale}rem` }}
@@ -36,7 +42,7 @@ const TagCloud = ({ tags }: TagCloudProps) => {
               <Hash className="w-3.5 h-3.5" />
               {item.tag}
               <span className="opacity-60 text-xs ml-1">({item.count})</span>
-            </span>
+            </button>
           );
         })}
       </div>

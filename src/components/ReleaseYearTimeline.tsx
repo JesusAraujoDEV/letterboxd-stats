@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -42,10 +43,18 @@ const ReleaseYearTimeline = ({
   moviesByReleaseYear,
   averageRatingByReleaseYear,
 }: ReleaseYearTimelineProps) => {
+  const navigate = useNavigate();
   const [chartMetric, setChartMetric] = useState<"count" | "average">("count");
   const isAverage = chartMetric === "average";
   const chartData = isAverage ? averageRatingByReleaseYear : moviesByReleaseYear;
   const dataKey = isAverage ? "average" : "count";
+
+  const handleClick = (data: any) => {
+    const year = data?.payload?.year ?? data?.activeLabel;
+    if (year) {
+      navigate(`/explore?releaseYear=${encodeURIComponent(year)}`);
+    }
+  };
 
   return (
     <div className="bg-card rounded-xl p-6 border border-border">
@@ -82,6 +91,7 @@ const ReleaseYearTimeline = ({
         <AreaChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          className="cursor-pointer"
         >
           <defs>
             <linearGradient id="releaseYearFill" x1="0" y1="0" x2="0" y2="1">
@@ -113,6 +123,7 @@ const ReleaseYearTimeline = ({
             activeDot={{ r: 4 }}
             connectNulls={false}
             baseValue={0}
+            onClick={handleClick}
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -1,4 +1,5 @@
 import { Film, Heart, List, ThumbsUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface LikesSectionProps {
   totalMovies: number;
@@ -17,6 +18,7 @@ const LikesSection = ({
   totalLikedReviews,
   topLikedYears,
 }: LikesSectionProps) => {
+  const navigate = useNavigate();
   const lovePercent = totalMovies
     ? Math.round((totalLikedFilms / totalMovies) * 100)
     : 0;
@@ -30,18 +32,21 @@ const LikesSection = ({
       value: totalLikedFilms,
       icon: Heart,
       highlight: null,
+      onClick: () => navigate("/explore?liked=true"),
     },
     {
       label: "Reseñas Apoyadas",
       value: totalLikedReviews,
       icon: ThumbsUp,
       highlight: "¡Muy activo en la comunidad!",
+      onClick: null,
     },
     {
       label: "Listas Guardadas",
       value: totalLikedLists,
       icon: List,
       highlight: null,
+      onClick: null,
     },
   ];
 
@@ -69,7 +74,18 @@ const LikesSection = ({
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-rose-500/10 bg-[#14181c] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/30 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]"
+              role={card.onClick ? "button" : undefined}
+              tabIndex={card.onClick ? 0 : undefined}
+              onClick={card.onClick ?? undefined}
+              onKeyDown={(event) => {
+                if (card.onClick && (event.key === "Enter" || event.key === " ")) {
+                  event.preventDefault();
+                  card.onClick();
+                }
+              }}
+              className={`rounded-2xl border border-rose-500/10 bg-[#14181c] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/30 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)] ${
+                card.onClick ? "cursor-pointer" : ""
+              }`}
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{card.label}</p>
@@ -97,7 +113,25 @@ const LikesSection = ({
             {topLikedYears.slice(0, 3).map((year, index) => {
               const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
               return (
-                <div key={year.year} className="flex items-center gap-3">
+                <div
+                  key={year.year}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    navigate(
+                      `/explore?likedYear=${encodeURIComponent(year.year)}&liked=true`
+                    )
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      navigate(
+                        `/explore?likedYear=${encodeURIComponent(year.year)}&liked=true`
+                      );
+                    }
+                  }}
+                  className="flex items-center gap-3 cursor-pointer"
+                >
                   <span className="text-lg">{medal}</span>
                   <span className="text-sm text-foreground font-medium">
                     {year.year}

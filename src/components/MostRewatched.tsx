@@ -1,5 +1,6 @@
 import { Repeat } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -51,6 +52,7 @@ const PosterCard = ({ movie }: { movie: MostRewatchedItem }) => {
 };
 
 const MostRewatched = ({ mostRewatchedMovies }: MostRewatchedProps) => {
+  const navigate = useNavigate();
   const items = mostRewatchedMovies ?? [];
 
   return (
@@ -72,18 +74,29 @@ const MostRewatched = ({ mostRewatchedMovies }: MostRewatchedProps) => {
           Aún no hay películas repetidas en tu diario.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {items.slice(0, 8).map((movie, index) => (
-            <div
-              key={`${movie.title}-${index}`}
-              className="flex flex-col gap-2"
-            >
-              <PosterCard movie={movie} />
-              <div className="mx-auto w-fit rounded-full bg-[#2c3440] px-2 py-1 text-xs font-bold text-green-400">
-                🔁 {movie.count} vistas
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {items.slice(0, 8).map((movie, index) => (
+              <div
+                key={`${movie.title}-${index}`}
+                className="flex flex-col gap-2"
+              >
+                <PosterCard movie={movie} />
+                <div className="mx-auto w-fit rounded-full bg-[#2c3440] px-2 py-1 text-xs font-bold text-green-400">
+                  🔁 {movie.count} vistas
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => navigate("/explore?rewatched=true")}
+              className="rounded-full border border-border bg-card/60 px-6 py-2 text-sm text-foreground transition-colors hover:bg-card"
+            >
+              Ver todas las pelis repetidas
+            </button>
+          </div>
         </div>
       )}
     </section>

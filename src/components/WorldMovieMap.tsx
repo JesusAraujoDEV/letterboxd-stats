@@ -4,6 +4,7 @@ import {
   Geographies,
   Geography,
 } from "react-simple-maps";
+import { useNavigate } from "react-router-dom";
 
 interface CountryStat {
   name: string;
@@ -46,6 +47,7 @@ const getFill = (count: number, max: number) => {
 };
 
 const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
+  const navigate = useNavigate();
   const [tooltip, setTooltip] = useState<{
     name: string;
     count: number;
@@ -100,6 +102,10 @@ const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
                         default: { outline: "none" },
                         hover: { outline: "none", opacity: 0.9 },
                         pressed: { outline: "none" },
+                      }}
+                      onClick={() => {
+                        if (!name) return;
+                        navigate(`/explore?country=${encodeURIComponent(name)}`);
                       }}
                       onMouseEnter={(event) => {
                         if (!count) return;
