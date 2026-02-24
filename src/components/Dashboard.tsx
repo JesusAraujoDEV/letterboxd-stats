@@ -9,6 +9,7 @@ import LikesSection from "./LikesSection";
 import TopDecades from "./TopDecades";
 import GlobalTastes from "./GlobalTastes";
 import WorldMovieMap from "./WorldMovieMap";
+import MostRewatched from "./MostRewatched";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -51,6 +52,8 @@ const Dashboard = ({ data }: DashboardProps) => {
       />
 
       <WorldMovieMap allCountries={data.allCountries ?? []} />
+
+      <MostRewatched mostRewatchedMovies={data.mostRewatchedMovies ?? []} />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

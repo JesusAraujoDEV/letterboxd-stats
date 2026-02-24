@@ -29,6 +29,13 @@ export interface MovieStats {
   topCountries: TasteItem[];
   topLanguages: TasteItem[];
   allCountries: TasteItem[];
+  mostRewatchedMovies: MostRewatchedItem[];
+}
+
+export interface MostRewatchedItem {
+  title: string;
+  count: number;
+  posterPath: string | null;
 }
 
 export interface TopDecade {
@@ -317,5 +324,57 @@ export const MOCK_DATA: MovieStats = {
     { name: "Mexico", count: 7 },
     { name: "Argentina", count: 5 },
     { name: "Venezuela", count: 2 },
+  ],
+  mostRewatchedMovies: [
+    {
+      title: "About Time",
+      count: 4,
+      posterPath: "/zZ5Ct9bVsx8s6sK4F6d9s5LwBHF.jpg",
+    },
+    {
+      title: "La La Land",
+      count: 3,
+      posterPath: "/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg",
+    },
+    {
+      title: "The Grand Budapest Hotel",
+      count: 3,
+      posterPath: "/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg",
+    },
+    {
+      title: "Interstellar",
+      count: 2,
+      posterPath: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+    },
+    {
+      title: "Before Sunrise",
+      count: 2,
+      posterPath: "/tgIX0s4P5e0Hfh11n2d8kzA1G9q.jpg",
+    },
+    {
+      title: "Spirited Away",
+      count: 2,
+      posterPath: "/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
+    },
+    {
+      title: "The Dark Knight",
+      count: 2,
+      posterPath: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+    },
+    {
+      title: "Whiplash",
+      count: 2,
+      posterPath: "/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+    },
+    {
+      title: "Her",
+      count: 2,
+      posterPath: "/eCOtqtfvn7mxGl6nfmq4b1exJRc.jpg",
+    },
+    {
+      title: "Moonlight",
+      count: 2,
+      posterPath: "/qAwFbszz0kRyTuXmMeKQZCX3Q2O.jpg",
+    },
   ],
 };
