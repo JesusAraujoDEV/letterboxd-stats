@@ -7,6 +7,7 @@ import ReleaseYearTimeline from "./ReleaseYearTimeline";
 import GraveyardSection from "./GraveyardSection";
 import LikesSection from "./LikesSection";
 import TopDecades from "./TopDecades";
+import GlobalTastes from "./GlobalTastes";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -41,6 +42,12 @@ const Dashboard = ({ data }: DashboardProps) => {
       />
 
       <TopDecades topDecades={data.topDecades ?? []} />
+
+      <GlobalTastes
+        topGenres={data.topGenres ?? []}
+        topCountries={data.topCountries ?? []}
+        topLanguages={data.topLanguages ?? []}
+      />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

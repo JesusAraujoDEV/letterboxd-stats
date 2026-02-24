@@ -25,6 +25,9 @@ export interface MovieStats {
   totalLikedReviews: number;
   topLikedYears: { year: string; count: number }[];
   topDecades: TopDecade[];
+  topGenres: TasteItem[];
+  topCountries: TasteItem[];
+  topLanguages: TasteItem[];
 }
 
 export interface TopDecade {
@@ -38,6 +41,11 @@ export interface TopDecadeMovie {
   posterPath: string | null;
   userRating: number | null;
   ratedDate?: string | null;
+}
+
+export interface TasteItem {
+  name: string;
+  count: number;
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -259,5 +267,41 @@ export const MOCK_DATA: MovieStats = {
         },
       ],
     },
+  ],
+  topGenres: [
+    { name: "Drama", count: 120 },
+    { name: "Thriller", count: 85 },
+    { name: "Comedy", count: 77 },
+    { name: "Romance", count: 60 },
+    { name: "Action", count: 45 },
+    { name: "Horror", count: 38 },
+    { name: "Sci-Fi", count: 34 },
+    { name: "Crime", count: 30 },
+    { name: "Animation", count: 22 },
+    { name: "Fantasy", count: 19 },
+  ],
+  topCountries: [
+    { name: "Estados Unidos", count: 140 },
+    { name: "Francia", count: 40 },
+    { name: "Reino Unido", count: 35 },
+    { name: "Japón", count: 28 },
+    { name: "Corea del Sur", count: 22 },
+    { name: "España", count: 18 },
+    { name: "México", count: 15 },
+    { name: "Argentina", count: 12 },
+    { name: "Italia", count: 11 },
+    { name: "Alemania", count: 9 },
+  ],
+  topLanguages: [
+    { name: "Inglés", count: 150 },
+    { name: "Español", count: 35 },
+    { name: "Francés", count: 25 },
+    { name: "Japonés", count: 18 },
+    { name: "Coreano", count: 14 },
+    { name: "Italiano", count: 10 },
+    { name: "Alemán", count: 9 },
+    { name: "Portugués", count: 8 },
+    { name: "Mandarín", count: 7 },
+    { name: "Hindi", count: 6 },
   ],
 };
