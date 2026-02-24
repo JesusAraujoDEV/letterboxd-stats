@@ -10,6 +10,7 @@ import TopDecades from "./TopDecades";
 import GlobalTastes from "./GlobalTastes";
 import WorldMovieMap from "./WorldMovieMap";
 import MostRewatched from "./MostRewatched";
+import CastAndCrew from "./CastAndCrew";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -55,6 +56,13 @@ const Dashboard = ({ data }: DashboardProps) => {
       <WorldMovieMap allCountries={data.allCountries ?? []} />
 
       <MostRewatched mostRewatchedMovies={data.mostRewatchedMovies ?? []} />
+
+      <CastAndCrew
+        topActorsAllTime={data.topActorsAllTime ?? []}
+        topActorsLogged={data.topActorsLogged ?? []}
+        topDirectorsAllTime={data.topDirectorsAllTime ?? []}
+        topDirectorsLogged={data.topDirectorsLogged ?? []}
+      />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

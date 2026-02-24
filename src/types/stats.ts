@@ -31,6 +31,10 @@ export interface MovieStats {
   topLanguages: TasteItem[];
   allCountries: TasteItem[];
   mostRewatchedMovies: MostRewatchedItem[];
+  topActorsAllTime: PersonStat[];
+  topActorsLogged: PersonStat[];
+  topDirectorsAllTime: PersonStat[];
+  topDirectorsLogged: PersonStat[];
 }
 
 export interface MostRewatchedItem {
@@ -55,6 +59,12 @@ export interface TopDecadeMovie {
 export interface TasteItem {
   name: string;
   count: number;
+}
+
+export interface PersonStat {
+  name: string;
+  count: number;
+  profilePath: string | null;
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -377,6 +387,214 @@ export const MOCK_DATA: MovieStats = {
       title: "Moonlight",
       count: 2,
       posterPath: "/qAwFbszz0kRyTuXmMeKQZCX3Q2O.jpg",
+    },
+  ],
+  topActorsAllTime: [
+    {
+      name: "Leonardo DiCaprio",
+      count: 12,
+      profilePath: "/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg",
+    },
+    {
+      name: "Emma Stone",
+      count: 10,
+      profilePath: "/2lKs67r7FIxF8eawU3xjviqozh8.jpg",
+    },
+    {
+      name: "Brad Pitt",
+      count: 9,
+      profilePath: "/kU3B75TyRiCgE270EyZnHjfivoq.jpg",
+    },
+    {
+      name: "Tilda Swinton",
+      count: 8,
+      profilePath: "/dQpnQx6S2y2xv0ikqfKczBz9bAA.jpg",
+    },
+    {
+      name: "Song Kang-ho",
+      count: 7,
+      profilePath: "/l80mofwZ4tK1JQp7m8i1gG1W3pe.jpg",
+    },
+    {
+      name: "Ryan Gosling",
+      count: 7,
+      profilePath: "/lyQBXzOQSuE59IsHyhrp0qIiPAz.jpg",
+    },
+    {
+      name: "Cate Blanchett",
+      count: 6,
+      profilePath: "/qM2V7n6h1yG7sZ0Ff1C8y0i4bPy.jpg",
+    },
+    {
+      name: "Tony Leung",
+      count: 6,
+      profilePath: "/lQ0b4MBz4COwNw1rT1QnXvYjS0W.jpg",
+    },
+    {
+      name: "Saoirse Ronan",
+      count: 5,
+      profilePath: "/oxv6cbkjWvZH1jJcQcgC6QDPH8U.jpg",
+    },
+    {
+      name: "Timothée Chalamet",
+      count: 5,
+      profilePath: "/BE2sdjpgsa2rNTFa66f7upkaOP.jpg",
+    },
+  ],
+  topActorsLogged: [
+    {
+      name: "Leonardo DiCaprio",
+      count: 6,
+      profilePath: "/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg",
+    },
+    {
+      name: "Emma Stone",
+      count: 5,
+      profilePath: "/2lKs67r7FIxF8eawU3xjviqozh8.jpg",
+    },
+    {
+      name: "Brad Pitt",
+      count: 5,
+      profilePath: "/kU3B75TyRiCgE270EyZnHjfivoq.jpg",
+    },
+    {
+      name: "Ryan Gosling",
+      count: 4,
+      profilePath: "/lyQBXzOQSuE59IsHyhrp0qIiPAz.jpg",
+    },
+    {
+      name: "Tilda Swinton",
+      count: 4,
+      profilePath: "/dQpnQx6S2y2xv0ikqfKczBz9bAA.jpg",
+    },
+    {
+      name: "Song Kang-ho",
+      count: 4,
+      profilePath: "/l80mofwZ4tK1JQp7m8i1gG1W3pe.jpg",
+    },
+    {
+      name: "Saoirse Ronan",
+      count: 3,
+      profilePath: "/oxv6cbkjWvZH1jJcQcgC6QDPH8U.jpg",
+    },
+    {
+      name: "Timothée Chalamet",
+      count: 3,
+      profilePath: "/BE2sdjpgsa2rNTFa66f7upkaOP.jpg",
+    },
+    {
+      name: "Cate Blanchett",
+      count: 3,
+      profilePath: "/qM2V7n6h1yG7sZ0Ff1C8y0i4bPy.jpg",
+    },
+    {
+      name: "Tony Leung",
+      count: 2,
+      profilePath: "/lQ0b4MBz4COwNw1rT1QnXvYjS0W.jpg",
+    },
+  ],
+  topDirectorsAllTime: [
+    {
+      name: "Christopher Nolan",
+      count: 9,
+      profilePath: "/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg",
+    },
+    {
+      name: "Wes Anderson",
+      count: 8,
+      profilePath: "/4v6K1h6xrXcv4ybl9d6S4qvQ1Vx.jpg",
+    },
+    {
+      name: "Martin Scorsese",
+      count: 8,
+      profilePath: "/9U9Y5GQuWX3EZy39B8nkk4NY01S.jpg",
+    },
+    {
+      name: "Greta Gerwig",
+      count: 6,
+      profilePath: "/sHW1TVsFbf6usvZDyYH2qxNojn3.jpg",
+    },
+    {
+      name: "Bong Joon-ho",
+      count: 6,
+      profilePath: "/9uDMxJF6FYZ5wM9s3B0R9eZ4N2d.jpg",
+    },
+    {
+      name: "Hayao Miyazaki",
+      count: 5,
+      profilePath: "/pM6v5rZqK8V7RVMkK4h7R4oKz6b.jpg",
+    },
+    {
+      name: "Denis Villeneuve",
+      count: 5,
+      profilePath: "/kJ2nqzN6nB7xP1uCqUz7FfR9Y4f.jpg",
+    },
+    {
+      name: "Pedro Almodóvar",
+      count: 4,
+      profilePath: "/tHWlWz6R0g6O6S6Qn8jO3xT2G8y.jpg",
+    },
+    {
+      name: "Sofia Coppola",
+      count: 4,
+      profilePath: "/9y0pO4yqZ4Zb9f0G1qR9n3d6b7m.jpg",
+    },
+    {
+      name: "Damien Chazelle",
+      count: 4,
+      profilePath: "/9cB2bK9XH7m8h9vGz8tHk8m6x8y.jpg",
+    },
+  ],
+  topDirectorsLogged: [
+    {
+      name: "Christopher Nolan",
+      count: 5,
+      profilePath: "/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg",
+    },
+    {
+      name: "Wes Anderson",
+      count: 4,
+      profilePath: "/4v6K1h6xrXcv4ybl9d6S4qvQ1Vx.jpg",
+    },
+    {
+      name: "Greta Gerwig",
+      count: 3,
+      profilePath: "/sHW1TVsFbf6usvZDyYH2qxNojn3.jpg",
+    },
+    {
+      name: "Bong Joon-ho",
+      count: 3,
+      profilePath: "/9uDMxJF6FYZ5wM9s3B0R9eZ4N2d.jpg",
+    },
+    {
+      name: "Martin Scorsese",
+      count: 3,
+      profilePath: "/9U9Y5GQuWX3EZy39B8nkk4NY01S.jpg",
+    },
+    {
+      name: "Damien Chazelle",
+      count: 2,
+      profilePath: "/9cB2bK9XH7m8h9vGz8tHk8m6x8y.jpg",
+    },
+    {
+      name: "Hayao Miyazaki",
+      count: 2,
+      profilePath: "/pM6v5rZqK8V7RVMkK4h7R4oKz6b.jpg",
+    },
+    {
+      name: "Denis Villeneuve",
+      count: 2,
+      profilePath: "/kJ2nqzN6nB7xP1uCqUz7FfR9Y4f.jpg",
+    },
+    {
+      name: "Pedro Almodóvar",
+      count: 2,
+      profilePath: "/tHWlWz6R0g6O6S6Qn8jO3xT2G8y.jpg",
+    },
+    {
+      name: "Sofia Coppola",
+      count: 2,
+      profilePath: "/9y0pO4yqZ4Zb9f0G1qR9n3d6b7m.jpg",
     },
   ],
 };
