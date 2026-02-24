@@ -24,6 +24,20 @@ export interface MovieStats {
   totalLikedLists: number;
   totalLikedReviews: number;
   topLikedYears: { year: string; count: number }[];
+  topDecades: TopDecade[];
+}
+
+export interface TopDecade {
+  decade: string;
+  averageRating: number;
+  movies: TopDecadeMovie[];
+}
+
+export interface TopDecadeMovie {
+  title: string;
+  posterPath: string | null;
+  userRating: number | null;
+  ratedDate?: string | null;
 }
 
 export const MOCK_DATA: MovieStats = {
@@ -81,5 +95,169 @@ export const MOCK_DATA: MovieStats = {
     { year: "2025", count: 30 },
     { year: "2024", count: 18 },
     { year: "2023", count: 10 },
+  ],
+  topDecades: [
+    {
+      decade: "1990s",
+      averageRating: 4.2,
+      movies: [
+        {
+          title: "Fight Club",
+          posterPath: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+          userRating: 4.5,
+          ratedDate: "1999-10-15",
+        },
+        {
+          title: "The Matrix",
+          posterPath: "/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+          userRating: 4.5,
+          ratedDate: "1999-03-31",
+        },
+        {
+          title: "Se7en",
+          posterPath: "/6yoghtyTpznpBik8EngEmJskVUO.jpg",
+          userRating: 4,
+          ratedDate: "1995-09-22",
+        },
+        {
+          title: "Goodfellas",
+          posterPath: "/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg",
+          userRating: 4.5,
+          ratedDate: "1990-09-21",
+        },
+        {
+          title: "Pulp Fiction",
+          posterPath: "/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+          userRating: 5,
+          ratedDate: "1994-10-14",
+        },
+        {
+          title: "Heat",
+          posterPath: "/rr7E0NoGKxvbkb89eR1GwfoYjpA.jpg",
+          userRating: 4,
+          ratedDate: "1995-12-15",
+        },
+        {
+          title: "The Big Lebowski",
+          posterPath: "/5DpMtMBXXNDujIuSlkwFZPYpoUn.jpg",
+          userRating: 3.5,
+          ratedDate: "1998-03-06",
+        },
+        {
+          title: "The Truman Show",
+          posterPath: "/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg",
+          userRating: 4,
+          ratedDate: "1998-06-05",
+        },
+      ],
+    },
+    {
+      decade: "2000s",
+      averageRating: 4.1,
+      movies: [
+        {
+          title: "The Lord of the Rings",
+          posterPath: "/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+          userRating: 5,
+          ratedDate: "2001-12-19",
+        },
+        {
+          title: "Spirited Away",
+          posterPath: "/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
+          userRating: 5,
+          ratedDate: "2001-07-20",
+        },
+        {
+          title: "The Dark Knight",
+          posterPath: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+          userRating: 4.5,
+          ratedDate: "2008-07-18",
+        },
+        {
+          title: "City of God",
+          posterPath: "/k7eYdWvhYQyRQoU2TB2A2Xu2TfD.jpg",
+          userRating: 4.5,
+          ratedDate: "2002-08-30",
+        },
+        {
+          title: "The Departed",
+          posterPath: "/nT97ifVT2J1yMQmeq20Qblg61T.jpg",
+          userRating: 4,
+          ratedDate: "2006-10-06",
+        },
+        {
+          title: "Pan's Labyrinth",
+          posterPath: "/9g3zgfBUpX9u6gK2ZxPzTuaV4aH.jpg",
+          userRating: 4,
+          ratedDate: "2006-10-11",
+        },
+        {
+          title: "Wall·E",
+          posterPath: "/hbhFnRzzg6ZDmm8YAmxBnQpQIPh.jpg",
+          userRating: 4,
+          ratedDate: "2008-06-27",
+        },
+        {
+          title: "No Country for Old Men",
+          posterPath: "/6d5XOczc226jECq0LIX0siKtgRH.jpg",
+          userRating: 4,
+          ratedDate: "2007-11-08",
+        },
+      ],
+    },
+    {
+      decade: "2010s",
+      averageRating: 4.0,
+      movies: [
+        {
+          title: "Inception",
+          posterPath: "/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg",
+          userRating: 4.5,
+          ratedDate: "2010-07-16",
+        },
+        {
+          title: "Interstellar",
+          posterPath: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+          userRating: 4.5,
+          ratedDate: "2014-11-07",
+        },
+        {
+          title: "Parasite",
+          posterPath: "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+          userRating: 4.5,
+          ratedDate: "2019-05-30",
+        },
+        {
+          title: "Mad Max: Fury Road",
+          posterPath: "/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg",
+          userRating: 4,
+          ratedDate: "2015-05-15",
+        },
+        {
+          title: "La La Land",
+          posterPath: "/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg",
+          userRating: 4,
+          ratedDate: "2016-12-09",
+        },
+        {
+          title: "Moonlight",
+          posterPath: "/qAwFbszz0kRyTuXmMeKQZCX3Q2O.jpg",
+          userRating: 4,
+          ratedDate: "2016-10-21",
+        },
+        {
+          title: "Whiplash",
+          posterPath: "/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+          userRating: 4.5,
+          ratedDate: "2014-10-10",
+        },
+        {
+          title: "Her",
+          posterPath: "/eCOtqtfvn7mxGl6nfmq4b1exJRc.jpg",
+          userRating: 4,
+          ratedDate: "2013-12-18",
+        },
+      ],
+    },
   ],
 };

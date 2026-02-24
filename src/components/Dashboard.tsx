@@ -6,6 +6,7 @@ import StatsGrid from "./StatsGrid";
 import ReleaseYearTimeline from "./ReleaseYearTimeline";
 import GraveyardSection from "./GraveyardSection";
 import LikesSection from "./LikesSection";
+import TopDecades from "./TopDecades";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -38,6 +39,8 @@ const Dashboard = ({ data }: DashboardProps) => {
         totalLikedReviews={data.totalLikedReviews}
         topLikedYears={data.topLikedYears}
       />
+
+      <TopDecades topDecades={data.topDecades ?? []} />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
