@@ -10,6 +10,17 @@ const Index = () => {
   const { setAllMovies } = useMovies();
 
   useEffect(() => {
+    const stored = localStorage.getItem("letterboxdStats");
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as MovieStats;
+      setStats(parsed);
+    } catch {
+      localStorage.removeItem("letterboxdStats");
+    }
+  }, []);
+
+  useEffect(() => {
     setAllMovies(stats?.allMovies ?? []);
   }, [setAllMovies, stats]);
 
@@ -86,7 +97,10 @@ const Index = () => {
                 Tu Resumen
               </h2>
               <button
-                onClick={() => setStats(null)}
+                onClick={() => {
+                  localStorage.removeItem("letterboxdStats");
+                  setStats(null);
+                }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Subir otro archivo

@@ -58,6 +58,7 @@ const FileUploadZone = ({ onUploadSuccess }: FileUploadZoneProps) => {
         }
 
         const data = await response.json();
+        localStorage.setItem("letterboxdStats", JSON.stringify(data));
         onUploadSuccess(data);
       } catch (err) {
         const message =

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Star } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { useMovies } from "@/context/MoviesContext";
 import type { MovieItem } from "@/types/stats";
 
@@ -24,30 +24,39 @@ const getYearFromDate = (date?: string | null) => {
   return Number.isNaN(year) ? null : year;
 };
 
-const getMaxRating = (movie: MovieItem) => {
-  const ratings = [movie.rating ?? 0];
+const getMaxRatingFromLogs = (movie: MovieItem) => {
+  const ratings: number[] = [];
   (movie.diaryLogs ?? []).forEach((log) => {
     if (typeof log.rating === "number") ratings.push(log.rating);
   });
-  return Math.max(...ratings);
+  if (typeof movie.rating === "number") ratings.push(movie.rating);
+  return ratings.length ? Math.max(...ratings) : 0;
 };
 
-const renderStars = (value: number) => {
+const getLatestWatchedDate = (movie: MovieItem) => {
+  const dates = (movie.diaryLogs ?? [])
+    .map((log) => log.watchedDate)
+    .filter(Boolean) as string[];
+  if (!dates.length) return null;
+  const sorted = [...dates].sort((a, b) => (a > b ? -1 : 1));
+  return sorted[0];
+};
+
+const getTagsFromLogs = (movie: MovieItem) => {
+  const tagsFromLogs = (movie.diaryLogs ?? [])
+    .flatMap((log) => (Array.isArray((log as { tags?: string[] }).tags) ? (log as { tags?: string[] }).tags ?? [] : []));
+  return tagsFromLogs.length ? tagsFromLogs : movie.tags ?? [];
+};
+
+const renderStarsEmoji = (value: number) => {
   const filled = Math.round(value);
-  return Array.from({ length: 5 }).map((_, index) => (
-    <Star
-      key={`star-${index}`}
-      className={`h-3.5 w-3.5 ${
-        index < filled ? "text-amber-400 fill-amber-400" : "text-white/30"
-      }`}
-    />
-  ));
+  if (!filled) return "";
+  return "⭐️".repeat(Math.min(5, filled));
 };
 
 const buildTitle = (filters: {
   releaseYear?: string | null;
   liked?: boolean;
-  likedYear?: string | null;
   decade?: string | null;
   genre?: string | null;
   country?: string | null;
@@ -59,33 +68,83 @@ const buildTitle = (filters: {
   watchedYear?: string | null;
   tags?: string[];
 }) => {
-  if (filters.likedYear) {
-    return `Películas favoritas de ${filters.likedYear}`;
-  }
+  const base = "Tus películas";
+  const adjectives: string[] = [];
+  const clauses: string[] = [];
 
-  const parts: string[] = [];
-  if (filters.genre) parts.push(`de ${filters.genre}`);
-  if (filters.country) parts.push(`de ${filters.country}`);
-  if (filters.language) parts.push(`en ${filters.language}`);
-  if (filters.decade) parts.push(`de la década ${filters.decade}`);
-  if (filters.releaseYear) parts.push(`de ${filters.releaseYear}`);
-  if (filters.actor) parts.push(`con ${filters.actor}`);
-  if (filters.director) parts.push(`dirigidas por ${filters.director}`);
-  if (filters.watchedYear) parts.push(`vistas en ${filters.watchedYear}`);
-  if (filters.tags?.length) parts.push(`con tags ${filters.tags.join(", ")}`);
-  if (filters.rating) parts.push(`con rating ≥ ${filters.rating}`);
-  if (filters.rewatched) parts.push("repetidas");
-  if (filters.liked) parts.unshift("favoritas");
+  if (filters.liked) adjectives.push("amadas");
+  if (filters.rewatched) adjectives.push("repetidas");
 
-  if (!parts.length) return "Todas las películas";
-  return `Películas ${parts.join(" ")}`;
+  if (filters.watchedYear) clauses.push(`vistas en ${filters.watchedYear}`);
+  if (filters.releaseYear) clauses.push(`estrenadas en ${filters.releaseYear}`);
+  if (filters.decade) clauses.push(`de la década ${filters.decade}`);
+  if (filters.country) clauses.push(`de ${filters.country}`);
+  if (filters.language) clauses.push(`en ${filters.language}`);
+  if (filters.genre) clauses.push(`del género ${filters.genre}`);
+  if (filters.director) clauses.push(`dirigidas por ${filters.director}`);
+  if (filters.actor) clauses.push(`con ${filters.actor}`);
+  if (filters.rating) clauses.push(`con rating ${filters.rating}`);
+  if (filters.tags?.length) clauses.push(`con tags ${filters.tags.join(", ")}`);
+
+  const adjectiveText = adjectives.length ? ` ${adjectives.join(" y ")}` : "";
+  const clauseText = clauses.length ? ` ${clauses.join(" ")}` : "";
+
+  if (!adjectives.length && !clauses.length) return "Todas tus películas";
+  return `${base}${adjectiveText}${clauseText}`;
+};
+
+const buildChips = (filters: {
+  releaseYear?: string | null;
+  liked?: boolean;
+  decade?: string | null;
+  genre?: string | null;
+  country?: string | null;
+  language?: string | null;
+  rewatched?: boolean;
+  actor?: string | null;
+  director?: string | null;
+  rating?: string | null;
+  watchedYear?: string | null;
+  tags?: string[];
+}) => {
+  const chips: string[] = [];
+  if (filters.liked) chips.push("❤️ Amadas");
+  if (filters.rewatched) chips.push("🔁 Rewatch");
+  if (filters.watchedYear) chips.push(`Vistas ${filters.watchedYear}`);
+  if (filters.releaseYear) chips.push(`Estreno ${filters.releaseYear}`);
+  if (filters.decade) chips.push(`Década ${filters.decade}`);
+  if (filters.country) chips.push(`País ${filters.country}`);
+  if (filters.language) chips.push(`Idioma ${filters.language}`);
+  if (filters.genre) chips.push(`Género ${filters.genre}`);
+  if (filters.director) chips.push(`Director ${filters.director}`);
+  if (filters.actor) chips.push(`Actor ${filters.actor}`);
+  if (filters.rating) chips.push(`Rating ${filters.rating}`);
+  if (filters.tags?.length) chips.push(`Tags ${filters.tags.join(", ")}`);
+  return chips;
 };
 
 const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { allMovies: contextMovies } = useMovies();
-  const sourceMovies = allMovies ?? contextMovies ?? [];
-  const [visibleCount, setVisibleCount] = useState(30);
+  const [storedMovies, setStoredMovies] = useState<MovieItem[]>([]);
+  const [hasStoredMovies, setHasStoredMovies] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("letterboxdStats");
+    if (!stored) return;
+    setHasStoredMovies(true);
+    try {
+      const parsed = JSON.parse(stored) as { allMovies?: MovieItem[] };
+      setStoredMovies(parsed?.allMovies ?? []);
+    } catch {
+      setStoredMovies([]);
+    }
+  }, []);
+
+  const sourceMovies = hasStoredMovies
+    ? storedMovies
+    : allMovies ?? contextMovies ?? [];
 
   const filters = useMemo(() => {
     const likedValue = searchParams.get("liked");
@@ -103,7 +162,6 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
     return {
       releaseYear: searchParams.get("releaseYear"),
       liked,
-      likedYear: searchParams.get("likedYear"),
       decade: searchParams.get("decade"),
       genre: searchParams.get("genre"),
       country: searchParams.get("country"),
@@ -117,22 +175,13 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
     };
   }, [searchParams]);
 
-  useEffect(() => {
-    setVisibleCount(30);
-  }, [searchParams]);
-
   const filteredMovies = useMemo(() => {
     return (sourceMovies ?? []).filter((movie) => {
-      if (filters.likedYear) {
-        if (!movie.liked) return false;
-        if (String(movie.releaseYear ?? "") !== filters.likedYear) return false;
-      }
-
       if (filters.releaseYear && String(movie.releaseYear ?? "") !== filters.releaseYear) {
         return false;
       }
 
-      if (filters.liked && !movie.liked) return false;
+      if (filters.liked && movie.liked !== true) return false;
 
       if (filters.decade) {
         const releaseYear = Number(movie.releaseYear ?? 0);
@@ -158,8 +207,9 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         return false;
       }
 
-      if (filters.actor && !includesNormalized(movie.actors, filters.actor)) {
-        return false;
+      if (filters.actor) {
+        const castList = (movie as MovieItem & { cast?: string[] }).cast ?? movie.actors;
+        if (!includesNormalized(castList, filters.actor)) return false;
       }
 
       if (filters.director && !includesNormalized(movie.directors, filters.director)) {
@@ -167,24 +217,25 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
       }
 
       if (filters.rating) {
-        const minRating = Number(filters.rating);
-        if (!Number.isNaN(minRating)) {
-          if (getMaxRating(movie) < minRating) return false;
+        const targetRating = Number(filters.rating);
+        if (!Number.isNaN(targetRating)) {
+          const hasRating = (movie.diaryLogs ?? []).some(
+            (log) => typeof log.rating === "number" && log.rating === targetRating
+          );
+          if (!hasRating) return false;
         }
       }
 
       if (filters.watchedYear) {
         const watchedYear = Number(filters.watchedYear);
-        const hasWatchedYear =
-          (movie.watchedYear && Number(movie.watchedYear) === watchedYear) ||
-          (movie.diaryLogs ?? []).some(
-            (log) => getYearFromDate(log.watchedDate) === watchedYear
-          );
+        const hasWatchedYear = (movie.diaryLogs ?? []).some(
+          (log) => getYearFromDate(log.watchedDate) === watchedYear
+        );
         if (!hasWatchedYear) return false;
       }
 
       if (filters.tags.length) {
-        const tags = movie.tags ?? [];
+        const tags = getTagsFromLogs(movie);
         const matchesAllTags = filters.tags.every((tag) =>
           includesNormalized(tags, tag)
         );
@@ -196,92 +247,102 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
   }, [filters, sourceMovies]);
 
   const title = useMemo(() => buildTitle(filters), [filters]);
-
-  const visibleMovies = filteredMovies.slice(0, visibleCount);
-  const showLoadMore = filteredMovies.length > visibleCount;
+  const chips = useMemo(() => buildChips(filters), [filters]);
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-6 space-y-2">
-          <h2 className="text-2xl font-heading font-bold text-foreground">
-            {title}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {filteredMovies.length} resultados
-          </p>
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 text-foreground transition-colors hover:bg-card"
+            aria-label="Volver al dashboard"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-heading font-bold text-foreground">
+              {title}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {filteredMovies.length} resultados
+            </p>
+          </div>
         </div>
 
+        {chips.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {chips.map((chip) => (
+              <span
+                key={chip}
+                className="rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-foreground"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+        )}
+
         {filteredMovies.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card/60 p-6 text-sm text-muted-foreground">
+          <div className="mt-8 rounded-2xl border border-border bg-card/60 p-6 text-sm text-muted-foreground">
             No se encontraron películas con estos filtros.
           </div>
         ) : (
-          <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-              {visibleMovies.map((movie, index) => {
-                const posterUrl = movie.posterPath
-                  ? `${TMDB_IMAGE_BASE_URL}${movie.posterPath}`
-                  : null;
-                const maxRating = getMaxRating(movie);
-                const diaryDates = (movie.diaryLogs ?? [])
-                  .map((log) => log.watchedDate)
-                  .filter(Boolean) as string[];
+          <div className="grid grid-cols-2 gap-6 p-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {filteredMovies.map((movie, index) => {
+              const posterUrl = movie.posterPath
+                ? `${TMDB_IMAGE_BASE_URL}${movie.posterPath}`
+                : null;
+              const maxRating = getMaxRatingFromLogs(movie);
+              const latestDate = getLatestWatchedDate(movie);
 
-                return (
-                  <div key={`${movie.title}-${index}`} className="flex flex-col gap-2">
-                    <div className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/5 bg-[#0f1418]">
-                      {posterUrl ? (
-                        <img
-                          src={posterUrl}
-                          alt={movie.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/20 via-transparent to-amber-500/20 px-3 text-center text-xs font-semibold text-white/70">
-                          {movie.title}
-                        </div>
-                      )}
-
-                      <div className="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-2 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <div className="flex items-center gap-1">
-                          {maxRating > 0 ? renderStars(maxRating) : (
-                            <span className="text-xs text-white/70">Sin rating</span>
-                          )}
-                        </div>
-                        {diaryDates.length > 0 && (
-                          <div className="text-[10px] text-white/70">
-                            {diaryDates.join(" · ")}
-                          </div>
-                        )}
-                      </div>
+              return (
+                <div
+                  key={`${movie.title}-${index}`}
+                  className="group relative aspect-[2/3] overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+                >
+                  {posterUrl ? (
+                    <img
+                      src={posterUrl}
+                      alt={movie.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/20 via-transparent to-amber-500/20 px-3 text-center text-sm font-semibold text-white/80">
+                      {movie.title}
                     </div>
+                  )}
 
-                    {filters.rewatched && (
-                      <p className="text-xs font-medium text-muted-foreground text-center">
-                        🔁 x{movie.rewatchCount ?? 0} vistas
-                      </p>
+                  {filters.rewatched && (
+                    <span className="absolute top-0 right-0 rounded-bl-lg bg-green-500 px-2 py-1 text-xs font-black text-black">
+                      🔁 x{movie.rewatchCount ?? 0}
+                    </span>
+                  )}
+
+                  <div className="absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 px-3 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <h3 className="text-center text-lg font-bold text-white">
+                      {movie.title}
+                    </h3>
+                    <div className="text-sm text-white">
+                      {maxRating > 0 ? (
+                        <span>{renderStarsEmoji(maxRating)}</span>
+                      ) : (
+                        <span className="text-white/70">Sin rating</span>
+                      )}
+                    </div>
+                    {movie.liked && <div className="text-xl text-red-500">❤️</div>}
+                    {latestDate && (
+                      <div className="text-xs text-white/70">{latestDate}</div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-
-            {showLoadMore && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setVisibleCount((prev) => prev + 30)}
-                  className="rounded-full border border-border bg-card/60 px-6 py-2 text-sm text-foreground transition-colors hover:bg-card"
-                >
-                  Cargar más
-                </button>
-              </div>
-            )}
-          </>
+                </div>
+              );
+            })}
+          </div>
         )}
       </main>
     </div>
