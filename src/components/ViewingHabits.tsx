@@ -56,65 +56,13 @@ const DayTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const DAY_ORDER = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
-
 const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const { availableYears, byYear } = activityStats;
   const navigate = useNavigate();
-  const [selectedYear, setSelectedYear] = useState(
-    availableYears[0] ?? "Total"
-  );
+  const [selectedYear, setSelectedYear] = useState(availableYears[0]);
 
-  const yearOptions = useMemo(
-    () => ["Total", ...availableYears],
-    [availableYears]
-  );
-
-  const totalData = useMemo<ActivityStatsYearData>(() => {
-    const dayMap = new Map<string, number>();
-    const weekMap = new Map<number, number>();
-
-    Object.values(byYear).forEach((yearData) => {
-      yearData?.days?.forEach(({ day, count }) => {
-        dayMap.set(day, (dayMap.get(day) ?? 0) + count);
-      });
-      yearData?.weeks?.forEach(({ week, count }) => {
-        weekMap.set(week, (weekMap.get(week) ?? 0) + count);
-      });
-    });
-
-    const knownDays = new Set(DAY_ORDER);
-    const extraDays = Array.from(dayMap.keys()).filter(
-      (day) => !knownDays.has(day)
-    );
-    extraDays.sort();
-
-    const days = [...DAY_ORDER, ...extraDays].map((day) => ({
-      day,
-      count: dayMap.get(day) ?? 0,
-    }));
-
-    const weeks = Array.from({ length: 52 }, (_, index) => index + 1).map(
-      (week) => ({
-        week,
-        count: weekMap.get(week) ?? 0,
-      })
-    );
-
-    return { days, weeks };
-  }, [byYear]);
-
-  const currentYearKey = selectedYear ?? availableYears[0] ?? "Total";
-  const currentYearData =
-    currentYearKey === "Total" ? totalData : byYear[currentYearKey];
+  const currentYearKey = selectedYear ?? availableYears[0];
+  const currentYearData = currentYearKey ? byYear[currentYearKey] : undefined;
 
   const maxDayCount = useMemo(() => {
     if (!currentYearData?.days?.length) return 0;
@@ -177,7 +125,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
             onChange={(event) => setSelectedYear(event.target.value)}
             className="bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            {yearOptions.map((year) => (
+            {availableYears.map((year) => (
               <option key={year} value={year}>
                 {year}
               </option>
