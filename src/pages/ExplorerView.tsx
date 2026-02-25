@@ -250,22 +250,22 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
   const chips = useMemo(() => buildChips(filters), [filters]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-text-main">
       <main className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 text-foreground transition-colors hover:bg-card"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background-card text-text-main transition-colors hover:bg-background"
             aria-label="Volver al dashboard"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div className="space-y-1">
-            <h1 className="text-3xl font-heading font-bold text-foreground">
+            <h1 className="text-3xl font-heading font-bold text-text-main">
               {title}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-text-muted">
               {filteredMovies.length} resultados
             </p>
           </div>
@@ -276,7 +276,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
             {chips.map((chip) => (
               <span
                 key={chip}
-                className="rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-foreground"
+                className="rounded-full border border-border bg-background-card px-3 py-1 text-xs font-medium text-text-main"
               >
                 {chip}
               </span>
@@ -285,7 +285,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         )}
 
         {filteredMovies.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-border bg-card/60 p-6 text-sm text-muted-foreground">
+          <div className="mt-8 rounded-2xl border border-border bg-background-card p-6 text-sm text-text-muted">
             No se encontraron películas con estos filtros.
           </div>
         ) : (
@@ -316,7 +316,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
                   )}
 
                   {filters.rewatched && (
-                    <span className="absolute top-0 right-0 rounded-bl-lg bg-green-500 px-2 py-1 text-xs font-black text-black">
+                    <span className="absolute top-0 right-0 rounded-bl-lg bg-primary px-2 py-1 text-xs font-black text-black">
                       🔁 x{movie.rewatchCount ?? 0}
                     </span>
                   )}
@@ -335,7 +335,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
                       )}
                     </div>
                     {movie.liked && (
-                      <div className="flex w-full items-center justify-center text-xl text-red-500">
+                      <div className="flex w-full items-center justify-center text-xl text-like">
                         ❤️
                       </div>
                     )}

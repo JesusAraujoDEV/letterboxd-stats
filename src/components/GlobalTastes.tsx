@@ -30,35 +30,35 @@ const GlobalTastes = ({
       icon: Clapperboard,
       param: "genre",
       items: topGenres ?? [],
-      accent: "from-orange-400/35 via-orange-400/15 to-transparent",
-      bar: "bg-orange-400/30",
+      accent: "from-like/35 via-like/15 to-transparent",
+      bar: "bg-like/30",
     },
     {
       title: "Países de Origen",
       icon: Globe,
       param: "country",
       items: topCountries ?? [],
-      accent: "from-green-400/35 via-green-400/15 to-transparent",
-      bar: "bg-green-400/30",
+      accent: "from-primary/35 via-primary/15 to-transparent",
+      bar: "bg-primary/30",
     },
     {
       title: "Idiomas",
       icon: MessageCircle,
       param: "language",
       items: topLanguages ?? [],
-      accent: "from-blue-400/35 via-blue-400/15 to-transparent",
-      bar: "bg-blue-400/30",
+      accent: "from-info/35 via-info/15 to-transparent",
+      bar: "bg-info/30",
     },
   ];
 
   return (
-    <section className="rounded-2xl border border-border bg-card/60 p-6">
+    <section className="rounded-2xl border border-border bg-background-card p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-heading font-semibold text-foreground">
+          <h3 className="text-lg font-heading font-semibold text-text-main">
             Gustos Globales
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-text-muted">
             Top 10 de géneros, países e idiomas
           </p>
         </div>
@@ -72,13 +72,13 @@ const GlobalTastes = ({
           return (
             <div
               key={card.title}
-              className="rounded-2xl border border-border/60 bg-[#0f1418] p-5"
+              className="rounded-2xl border border-border bg-background p-5"
             >
               <div className="mb-4 flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5">
                   <Icon className="h-5 w-5 text-white/80" />
                 </div>
-                <h4 className="text-sm font-heading font-semibold text-foreground">
+                <h4 className="text-sm font-heading font-semibold text-text-main">
                   {card.title}
                 </h4>
               </div>
@@ -93,7 +93,7 @@ const GlobalTastes = ({
                         `/explore?${card.param}=${encodeURIComponent(item.name)}`
                       )
                     }
-                    className="relative block w-full overflow-hidden rounded-lg border border-white/5 bg-[#14181c] px-3 py-2 text-left transition-colors hover:bg-white/5"
+                    className="relative block w-full overflow-hidden rounded-lg border border-border/60 bg-background-card px-3 py-2 text-left transition-colors hover:bg-background"
                     title={`Has visto ${item.count} películas de ${item.name}`}
                   >
                     <div
@@ -105,10 +105,10 @@ const GlobalTastes = ({
                       style={{ width: buildWidth(item.count ?? 0, maxCount) }}
                     />
                     <div className="relative z-10 flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">
+                      <span className="text-sm font-medium text-text-main">
                         {item.name}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-text-muted">
                         {item.count}
                       </span>
                     </div>
@@ -116,7 +116,7 @@ const GlobalTastes = ({
                 ))}
 
                 {card.items?.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-text-muted">
                     Sin datos todavía.
                   </p>
                 )}

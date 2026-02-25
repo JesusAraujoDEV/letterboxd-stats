@@ -7,7 +7,7 @@ interface TagCloudProps {
 
 const TAG_COLORS = [
   "bg-primary/15 text-primary border-primary/30",
-  "bg-accent/15 text-accent border-accent/30",
+  "bg-like/15 text-like border-like/30",
   "bg-info/15 text-info border-info/30",
   "bg-chart-4/15 text-chart-4 border-chart-4/30",
   "bg-chart-5/15 text-chart-5 border-chart-5/30",
