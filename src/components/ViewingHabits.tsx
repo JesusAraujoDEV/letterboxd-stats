@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 interface ActivityStatsYearData {
   days: { day: string; count: number }[];
@@ -55,19 +56,92 @@ const DayTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+const DAY_ORDER = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
+
 const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const { availableYears, byYear } = activityStats;
-  const [selectedYear, setSelectedYear] = useState(availableYears[0]);
+  const navigate = useNavigate();
+  const [selectedYear, setSelectedYear] = useState(
+    availableYears[0] ?? "Total"
+  );
 
-  const currentYearKey = selectedYear ?? availableYears[0];
-  const currentYearData = currentYearKey
-    ? byYear[currentYearKey]
-    : undefined;
+  const yearOptions = useMemo(
+    () => ["Total", ...availableYears],
+    [availableYears]
+  );
+
+  const totalData = useMemo<ActivityStatsYearData>(() => {
+    const dayMap = new Map<string, number>();
+    const weekMap = new Map<number, number>();
+
+    Object.values(byYear).forEach((yearData) => {
+      yearData?.days?.forEach(({ day, count }) => {
+        dayMap.set(day, (dayMap.get(day) ?? 0) + count);
+      });
+      yearData?.weeks?.forEach(({ week, count }) => {
+        weekMap.set(week, (weekMap.get(week) ?? 0) + count);
+      });
+    });
+
+    const knownDays = new Set(DAY_ORDER);
+    const extraDays = Array.from(dayMap.keys()).filter(
+      (day) => !knownDays.has(day)
+    );
+    extraDays.sort();
+
+    const days = [...DAY_ORDER, ...extraDays].map((day) => ({
+      day,
+      count: dayMap.get(day) ?? 0,
+    }));
+
+    const weeks = Array.from({ length: 52 }, (_, index) => index + 1).map(
+      (week) => ({
+        week,
+        count: weekMap.get(week) ?? 0,
+      })
+    );
+
+    return { days, weeks };
+  }, [byYear]);
+
+  const currentYearKey = selectedYear ?? availableYears[0] ?? "Total";
+  const currentYearData =
+    currentYearKey === "Total" ? totalData : byYear[currentYearKey];
+
+  const maxDayCount = useMemo(() => {
+    if (!currentYearData?.days?.length) return 0;
+    return Math.max(...currentYearData.days.map((day) => day.count));
+  }, [currentYearData]);
 
   const maxWeekCount = useMemo(() => {
     if (!currentYearData?.weeks?.length) return 0;
     return Math.max(...currentYearData.weeks.map((week) => week.count));
   }, [currentYearData]);
+
+  const yearParam =
+    currentYearKey === "Total"
+      ? ""
+      : `&watchedYear=${encodeURIComponent(currentYearKey)}`;
+
+  const handleDayClick = (data: any) => {
+    const day = data?.payload?.day ?? data?.day;
+    if (!day) return;
+    navigate(`/explore?watchedDay=${encodeURIComponent(day)}${yearParam}`);
+  };
+
+  const handleWeekClick = (data: any) => {
+    const week = data?.payload?.week ?? data?.week;
+    if (!week) return;
+    navigate(`/explore?watchedWeek=${encodeURIComponent(week)}${yearParam}`);
+  };
 
   if (!currentYearData) {
     return (
@@ -83,8 +157,8 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   }
 
   return (
-    <div className="bg-card rounded-xl p-6 border border-border">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-heading font-semibold text-foreground">
             Hábitos de Visualización
@@ -103,7 +177,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
             onChange={(event) => setSelectedYear(event.target.value)}
             className="bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            {availableYears.map((year) => (
+            {yearOptions.map((year) => (
               <option key={year} value={year}>
                 {year}
               </option>
@@ -112,11 +186,12 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
+      <div className="bg-card rounded-xl p-5 border border-border">
+        <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
             Días de la semana
           </h4>
+        </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={currentYearData.days} barCategoryGap="20%">
               <XAxis
@@ -132,15 +207,31 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
                 tickLine={false}
               />
               <Tooltip content={<DayTooltip />} cursor={false} />
-              <Bar dataKey="count" fill="#00e054" radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey="count"
+                radius={[8, 8, 0, 0]}
+                onClick={handleDayClick}
+                className="cursor-pointer"
+              >
+                {currentYearData.days.map((entry) => (
+                  <Cell
+                    key={`day-${entry.day}`}
+                    fill={
+                      entry.count === maxDayCount && maxDayCount > 0
+                        ? "#f97316"
+                        : "#00e054"
+                    }
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+      </div>
 
-        <div>
-          <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
-            Semanas del año
-          </h4>
+      <div className="bg-card rounded-xl p-5 border border-border">
+        <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
+          Semanas del año
+        </h4>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={currentYearData.weeks} barCategoryGap="10%">
               <XAxis
@@ -156,7 +247,12 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
                 tickLine={false}
               />
               <Tooltip content={<WeekTooltip />} cursor={false} />
-              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+              <Bar
+                dataKey="count"
+                radius={[8, 8, 0, 0]}
+                onClick={handleWeekClick}
+                className="cursor-pointer"
+              >
                 {currentYearData.weeks.map((entry) => (
                   <Cell
                     key={`week-${entry.week}`}
@@ -170,7 +266,6 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
       </div>
     </div>
   );

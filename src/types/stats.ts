@@ -83,6 +83,8 @@ export interface MovieDiaryLog {
   rating?: number | null;
   watchedDate?: string | null;
   watchedYear?: string | number | null;
+  watchedDay?: string | null;
+  watchedWeek?: number | string | null;
   tags?: string[];
 }
 

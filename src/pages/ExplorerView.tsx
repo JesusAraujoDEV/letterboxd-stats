@@ -13,6 +13,13 @@ interface ExplorerViewProps {
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
+const normalizeText = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 const normalizeCountry = (value: string) => {
   const trimmed = value.trim();
   const byCode = COUNTRY_CODE_TO_NAME[trimmed.toUpperCase()];
@@ -31,11 +38,6 @@ const includesNormalized = (list: string[] | undefined, value: string) => {
   return list.some((item) => normalize(item) === target);
 };
 
-const getYearFromDate = (date?: string | null) => {
-  if (!date) return null;
-  const year = new Date(date).getFullYear();
-  return Number.isNaN(year) ? null : year;
-};
 
 const getMaxRatingFromLogs = (movie: MovieItem) => {
   const ratings: number[] = [];
@@ -79,6 +81,8 @@ const buildTitle = (filters: {
   director?: string | null;
   rating?: string | null;
   watchedYear?: string | null;
+  watchedDay?: string | null;
+  watchedWeek?: string | null;
   tags?: string[];
 }) => {
   const base = "Tus películas";
@@ -97,6 +101,8 @@ const buildTitle = (filters: {
   if (filters.director) clauses.push(`dirigidas por ${filters.director}`);
   if (filters.actor) clauses.push(`con ${filters.actor}`);
   if (filters.rating) clauses.push(`con rating ${filters.rating}`);
+  if (filters.watchedDay) clauses.push(`vistas en ${filters.watchedDay}`);
+  if (filters.watchedWeek) clauses.push(`vistas semana ${filters.watchedWeek}`);
   if (filters.tags?.length) clauses.push(`con tags ${filters.tags.join(", ")}`);
 
   const adjectiveText = adjectives.length ? ` ${adjectives.join(" y ")}` : "";
@@ -118,12 +124,16 @@ const buildChips = (filters: {
   director?: string | null;
   rating?: string | null;
   watchedYear?: string | null;
+  watchedDay?: string | null;
+  watchedWeek?: string | null;
   tags?: string[];
 }) => {
   const chips: string[] = [];
   if (filters.liked) chips.push("❤️ Amadas");
   if (filters.rewatched) chips.push("🔁 Rewatch");
   if (filters.watchedYear) chips.push(`Vistas ${filters.watchedYear}`);
+  if (filters.watchedDay) chips.push(`Día ${filters.watchedDay}`);
+  if (filters.watchedWeek) chips.push(`Semana ${filters.watchedWeek}`);
   if (filters.releaseYear) chips.push(`Estreno ${filters.releaseYear}`);
   if (filters.decade) chips.push(`Década ${filters.decade}`);
   if (filters.country) chips.push(`País ${normalizeCountry(filters.country)}`);
@@ -186,12 +196,18 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
       director: searchParams.get("director"),
       rating: searchParams.get("rating"),
       watchedYear: searchParams.get("watchedYear"),
+      watchedDay: searchParams.get("watchedDay"),
+      watchedWeek: searchParams.get("watchedWeek"),
       tags,
     };
   }, [searchParams]);
 
   const filteredMovies = useMemo(() => {
     return (sourceMovies ?? []).filter((movie) => {
+      const watchedWeekParam = filters.watchedWeek;
+      const watchedDayParam = filters.watchedDay;
+      const watchedYearParam = filters.watchedYear;
+
       if (filters.releaseYear && String(movie.releaseYear ?? "") !== filters.releaseYear) {
         return false;
       }
@@ -243,12 +259,25 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         }
       }
 
-      if (filters.watchedYear) {
-        const watchedYear = Number(filters.watchedYear);
-        const hasWatchedYear = (movie.diaryLogs ?? []).some(
-          (log) => getYearFromDate(log.watchedDate) === watchedYear
-        );
-        if (!hasWatchedYear) return false;
+      if (watchedYearParam || watchedWeekParam || watchedDayParam) {
+        const matchInLogs = (movie.diaryLogs ?? []).some((log) => {
+          const matchesYear = watchedYearParam
+            ? String(log.watchedYear) === watchedYearParam
+            : true;
+
+          const matchesWeek = watchedWeekParam
+            ? String(log.watchedWeek) === watchedWeekParam
+            : true;
+
+          const matchesDay = watchedDayParam
+            ? normalizeText(String(log.watchedDay ?? "")) ===
+              normalizeText(decodeURIComponent(watchedDayParam))
+            : true;
+
+          return matchesYear && matchesWeek && matchesDay;
+        });
+
+        if (!matchInLogs) return false;
       }
 
       if (filters.tags.length) {
@@ -265,6 +294,11 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
 
   const title = useMemo(() => buildTitle(filters), [filters]);
   const chips = useMemo(() => buildChips(filters), [filters]);
+  const backHash = useMemo(() => {
+    if (fromHash) return fromHash;
+    if (filters.watchedDay || filters.watchedWeek) return "#habitos-visualizacion";
+    return "";
+  }, [filters.watchedDay, filters.watchedWeek, fromHash]);
 
   return (
     <div className="min-h-screen bg-background text-text-main">
@@ -272,7 +306,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate(`/${fromHash}`)}
+            onClick={() => navigate(`/${backHash}`)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background-card text-text-main transition-colors hover:bg-background"
             aria-label="Volver al dashboard"
           >
