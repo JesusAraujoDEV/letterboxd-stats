@@ -36,6 +36,17 @@ export interface MovieStats {
   topDirectorsAllTime: PersonStat[];
   topDirectorsLogged: PersonStat[];
   allMovies: MovieItem[];
+  activityStats?: ActivityStats;
+}
+
+export interface ActivityStatsYearData {
+  days: { day: string; count: number }[];
+  weeks: { week: number; count: number }[];
+}
+
+export interface ActivityStats {
+  availableYears: string[];
+  byYear: Record<string, ActivityStatsYearData>;
 }
 
 export interface MostRewatchedItem {

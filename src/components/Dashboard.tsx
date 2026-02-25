@@ -12,6 +12,7 @@ import GlobalTastes from "./GlobalTastes";
 import WorldMovieMap from "./WorldMovieMap";
 import MostRewatched from "./MostRewatched";
 import CastAndCrew from "./CastAndCrew";
+import ViewingHabits from "./ViewingHabits";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -72,6 +73,14 @@ const Dashboard = ({ data }: DashboardProps) => {
         <ReleaseYearTimeline
           moviesByReleaseYear={data.moviesByReleaseYear}
           averageRatingByReleaseYear={data.averageRatingByReleaseYear}
+        />
+      </section>
+
+      <section id="habitos-visualizacion" data-scrollspy="true">
+        <ViewingHabits
+          activityStats={
+            data.activityStats ?? { availableYears: [], byYear: {} }
+          }
         />
       </section>
 
