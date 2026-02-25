@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useMovies } from "@/context/MoviesContext";
 import type { MovieItem } from "@/types/stats";
+import { COUNTRY_CODE_TO_NAME } from "../lib/countries";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -11,6 +12,18 @@ interface ExplorerViewProps {
 }
 
 const normalize = (value: string) => value.trim().toLowerCase();
+
+const normalizeCountry = (value: string) => {
+  const trimmed = value.trim();
+  const byCode = COUNTRY_CODE_TO_NAME[trimmed.toUpperCase()];
+  return byCode ?? trimmed;
+};
+
+const includesCountryNormalized = (list: string[] | undefined, value: string) => {
+  if (!list?.length) return false;
+  const target = normalize(normalizeCountry(value));
+  return list.some((item) => normalize(normalizeCountry(item)) === target);
+};
 
 const includesNormalized = (list: string[] | undefined, value: string) => {
   if (!list?.length) return false;
@@ -78,7 +91,7 @@ const buildTitle = (filters: {
   if (filters.watchedYear) clauses.push(`vistas en ${filters.watchedYear}`);
   if (filters.releaseYear) clauses.push(`estrenadas en ${filters.releaseYear}`);
   if (filters.decade) clauses.push(`de la década ${filters.decade}`);
-  if (filters.country) clauses.push(`de ${filters.country}`);
+  if (filters.country) clauses.push(`de ${normalizeCountry(filters.country)}`);
   if (filters.language) clauses.push(`en ${filters.language}`);
   if (filters.genre) clauses.push(`del género ${filters.genre}`);
   if (filters.director) clauses.push(`dirigidas por ${filters.director}`);
@@ -113,7 +126,7 @@ const buildChips = (filters: {
   if (filters.watchedYear) chips.push(`Vistas ${filters.watchedYear}`);
   if (filters.releaseYear) chips.push(`Estreno ${filters.releaseYear}`);
   if (filters.decade) chips.push(`Década ${filters.decade}`);
-  if (filters.country) chips.push(`País ${filters.country}`);
+  if (filters.country) chips.push(`País ${normalizeCountry(filters.country)}`);
   if (filters.language) chips.push(`Idioma ${filters.language}`);
   if (filters.genre) chips.push(`Género ${filters.genre}`);
   if (filters.director) chips.push(`Director ${filters.director}`);
@@ -195,11 +208,13 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         return false;
       }
 
-      if (filters.country && !includesNormalized(movie.countries, filters.country)) {
+      const movieCountries = movie.countries ?? (movie.country ? [movie.country] : undefined);
+      if (filters.country && !includesCountryNormalized(movieCountries, filters.country)) {
         return false;
       }
 
-      if (filters.language && !includesNormalized(movie.languages, filters.language)) {
+      const movieLanguages = movie.languages ?? (movie.language ? [movie.language] : undefined);
+      if (filters.language && !includesNormalized(movieLanguages, filters.language)) {
         return false;
       }
 
@@ -289,7 +304,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
             No se encontraron películas con estos filtros.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-6 p-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 p-6 sm:grid-cols-3 md:grid-cols-5">
             {filteredMovies.map((movie, index) => {
               const posterUrl = movie.posterPath
                 ? `${TMDB_IMAGE_BASE_URL}${movie.posterPath}`
@@ -300,100 +315,53 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
               return (
                 <div
                   key={`${movie.title}-${index}`}
-                  className="group relative aspect-[2/3] overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+                  className="group flex flex-col gap-2"
                 >
-                  {posterUrl ? (
-                    <img
-                      src={posterUrl}
-                      alt={movie.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/20 via-transparent to-amber-500/20 px-3 text-center text-sm font-semibold text-white/80">
-                      {movie.title}
-                    </div>
-                  )}
-
-                  {filters.rewatched && (
-                    <span className="absolute top-0 right-0 rounded-bl-lg bg-primary px-2 py-1 text-xs font-black text-black">
-                      🔁 x{movie.rewatchCount ?? 0}
-                    </span>
-                  )}
-
-                  <div className="absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-                  <div className="absolute inset-0 z-10 flex flex-col justify-center gap-3 px-3 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <h3 className="text-center text-lg font-bold text-white">
-                      {movie.title}
-                    </h3>
-                    <div className="flex w-full items-center justify-center text-sm text-white">
-                      {maxRating > 0 ? (
-                        <span>{renderStarsEmoji(maxRating)}</span>
-                      ) : (
-                        <span className="text-white/70">Sin rating</span>
-                      )}
-                    </div>
-                    {movie.liked && (
-                      <div className="flex w-full items-center justify-center text-xl text-like">
-                        ❤️
+                  <div className="group relative aspect-[2/3] overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
+                    {posterUrl ? (
+                      <img
+                        src={posterUrl}
+                        alt={movie.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/20 via-transparent to-amber-500/20 px-3 text-center text-sm font-semibold text-white/80">
+                        {movie.title}
                       </div>
                     )}
-                    {latestDate && (
-                      <div className="w-full text-center text-xs text-white/70">
-                        {latestDate}
+
+                    <div className="absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                    <div className="absolute inset-0 z-10 flex flex-col justify-center gap-3 px-3 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <h3 className="text-center text-lg font-bold text-white">
+                        {movie.title}
+                      </h3>
+                      <div className="flex w-full items-center justify-center text-sm text-white">
+                        {maxRating > 0 ? (
+                          <span>{renderStarsEmoji(maxRating)}</span>
+                        ) : (
+                          <span className="text-white/70">Sin rating</span>
+                        )}
                       </div>
-                    )}
-                    <div className="mt-4 flex w-full flex-col gap-3 px-4 text-xs">
-                      {movie.genres && movie.genres.length > 0 && (
-                        <div className="flex w-full flex-col gap-1">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                            Géneros
-                          </span>
-                          {movie.genres.slice(0, 3).map((g, idx) => (
-                            <span
-                              key={`${g}-${idx}`}
-                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
-                            >
-                              {g}
-                            </span>
-                          ))}
+                      {movie.liked && (
+                        <div className="flex w-full items-center justify-center text-xl text-like">
+                          ❤️
                         </div>
                       )}
-
-                      {movie.countries && movie.countries.length > 0 && (
-                        <div className="flex w-full flex-col gap-1">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                            Países
-                          </span>
-                          {movie.countries.slice(0, 3).map((c, idx) => (
-                            <span
-                              key={`${c}-${idx}`}
-                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
-                            >
-                              {c}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {movie.languages && movie.languages.length > 0 && (
-                        <div className="flex w-full flex-col gap-1">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                            Idiomas
-                          </span>
-                          {movie.languages.slice(0, 3).map((l, idx) => (
-                            <span
-                              key={`${l}-${idx}`}
-                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
-                            >
-                              {l}
-                            </span>
-                          ))}
+                      {latestDate && (
+                        <div className="w-full text-center text-xs text-white/70">
+                          {latestDate}
                         </div>
                       )}
                     </div>
                   </div>
+
+                  {filters.rewatched && (
+                    <p className="text-xs text-text-muted">
+                      🔁 x{movie.rewatchCount ?? 0} vistas
+                    </p>
+                  )}
                 </div>
               );
             })}

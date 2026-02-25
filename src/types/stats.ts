@@ -71,6 +71,8 @@ export interface PersonStat {
 export interface MovieDiaryLog {
   rating?: number | null;
   watchedDate?: string | null;
+  watchedYear?: string | number | null;
+  tags?: string[];
 }
 
 export interface MovieItem {
@@ -80,9 +82,12 @@ export interface MovieItem {
   decade?: string | null;
   liked?: boolean | null;
   genres?: string[];
+  country?: string | null;
   countries?: string[];
+  language?: string | null;
   languages?: string[];
   rewatchCount?: number | null;
+  cast?: string[];
   actors?: string[];
   directors?: string[];
   rating?: number | null;

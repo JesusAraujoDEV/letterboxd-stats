@@ -92,7 +92,7 @@ const MostRewatched = ({ mostRewatchedMovies }: MostRewatchedProps) => {
             <button
               type="button"
               onClick={() => navigate("/explore?rewatched=true")}
-              className="rounded-full border border-border bg-card/60 px-6 py-2 text-sm text-foreground transition-colors hover:bg-card"
+              className="rounded-full border border-border bg-card/60 px-6 py-2 text-sm text-foreground transition-colors hover:bg-card cursor-pointer"
             >
               Ver todas las pelis repetidas
             </button>

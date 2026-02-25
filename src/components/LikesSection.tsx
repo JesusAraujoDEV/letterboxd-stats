@@ -119,14 +119,14 @@ const LikesSection = ({
                   tabIndex={0}
                   onClick={() =>
                     navigate(
-                      `/explore?likedYear=${encodeURIComponent(year.year)}&liked=true`
+                      `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`
                     )
                   }
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       navigate(
-                        `/explore?likedYear=${encodeURIComponent(year.year)}&liked=true`
+                        `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`
                       );
                     }
                   }}

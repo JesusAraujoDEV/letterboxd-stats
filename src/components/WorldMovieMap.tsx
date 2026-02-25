@@ -95,6 +95,7 @@ const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
+                      className="cursor-pointer"
                       fill={fill}
                       stroke="#111418"
                       strokeWidth={0.4}
