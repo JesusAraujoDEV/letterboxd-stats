@@ -42,6 +42,7 @@ export interface MovieStats {
 export interface ActivityStatsYearData {
   days: { day: string; count: number }[];
   weeks: { week: number; count: number }[];
+  months: { month: string; count: number }[];
 }
 
 export interface ActivityStats {
@@ -85,6 +86,7 @@ export interface MovieDiaryLog {
   watchedYear?: string | number | null;
   watchedDay?: string | null;
   watchedWeek?: number | string | null;
+  watchedMonth?: string | null;
   tags?: string[];
 }
 

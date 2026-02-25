@@ -83,6 +83,7 @@ const buildTitle = (filters: {
   watchedYear?: string | null;
   watchedDay?: string | null;
   watchedWeek?: string | null;
+  watchedMonth?: string | null;
   tags?: string[];
 }) => {
   const base = "Tus películas";
@@ -103,6 +104,7 @@ const buildTitle = (filters: {
   if (filters.rating) clauses.push(`con rating ${filters.rating}`);
   if (filters.watchedDay) clauses.push(`vistas en ${filters.watchedDay}`);
   if (filters.watchedWeek) clauses.push(`vistas semana ${filters.watchedWeek}`);
+  if (filters.watchedMonth) clauses.push(`vistas en ${filters.watchedMonth}`);
   if (filters.tags?.length) clauses.push(`con tags ${filters.tags.join(", ")}`);
 
   const adjectiveText = adjectives.length ? ` ${adjectives.join(" y ")}` : "";
@@ -126,6 +128,7 @@ const buildChips = (filters: {
   watchedYear?: string | null;
   watchedDay?: string | null;
   watchedWeek?: string | null;
+  watchedMonth?: string | null;
   tags?: string[];
 }) => {
   const chips: string[] = [];
@@ -134,6 +137,7 @@ const buildChips = (filters: {
   if (filters.watchedYear) chips.push(`Vistas ${filters.watchedYear}`);
   if (filters.watchedDay) chips.push(`Día ${filters.watchedDay}`);
   if (filters.watchedWeek) chips.push(`Semana ${filters.watchedWeek}`);
+  if (filters.watchedMonth) chips.push(`Mes ${filters.watchedMonth}`);
   if (filters.releaseYear) chips.push(`Estreno ${filters.releaseYear}`);
   if (filters.decade) chips.push(`Década ${filters.decade}`);
   if (filters.country) chips.push(`País ${normalizeCountry(filters.country)}`);
@@ -198,6 +202,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
       watchedYear: searchParams.get("watchedYear"),
       watchedDay: searchParams.get("watchedDay"),
       watchedWeek: searchParams.get("watchedWeek"),
+      watchedMonth: searchParams.get("watchedMonth"),
       tags,
     };
   }, [searchParams]);
@@ -207,6 +212,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
       const watchedWeekParam = filters.watchedWeek;
       const watchedDayParam = filters.watchedDay;
       const watchedYearParam = filters.watchedYear;
+      const watchedMonthParam = filters.watchedMonth;
 
       if (filters.releaseYear && String(movie.releaseYear ?? "") !== filters.releaseYear) {
         return false;
@@ -259,7 +265,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         }
       }
 
-      if (watchedYearParam || watchedWeekParam || watchedDayParam) {
+      if (watchedYearParam || watchedWeekParam || watchedDayParam || watchedMonthParam) {
         const matchInLogs = (movie.diaryLogs ?? []).some((log) => {
           const matchesYear = watchedYearParam
             ? String(log.watchedYear) === watchedYearParam
@@ -274,7 +280,12 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
               normalizeText(decodeURIComponent(watchedDayParam))
             : true;
 
-          return matchesYear && matchesWeek && matchesDay;
+          const matchesMonth = watchedMonthParam
+            ? normalizeText(String(log.watchedMonth ?? "")) ===
+              normalizeText(decodeURIComponent(watchedMonthParam))
+            : true;
+
+          return matchesYear && matchesWeek && matchesDay && matchesMonth;
         });
 
         if (!matchInLogs) return false;

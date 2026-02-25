@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 interface ActivityStatsYearData {
   days: { day: string; count: number }[];
   weeks: { week: number; count: number }[];
+  months: { month: string; count: number }[];
 }
 
 interface ActivityStats {
@@ -56,6 +57,21 @@ const DayTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+const MonthTooltip = ({ active, payload }: any) => {
+  if (active && payload?.length) {
+    const { month, count } = payload[0].payload;
+    return (
+      <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg">
+        <p className="text-foreground font-heading font-semibold">{month}</p>
+        <p className="text-muted-foreground text-sm">
+          {count} películas vistas
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const { availableYears, byYear } = activityStats;
   const navigate = useNavigate();
@@ -63,15 +79,23 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
 
   const currentYearKey = selectedYear ?? availableYears[0];
   const currentYearData = currentYearKey ? byYear[currentYearKey] : undefined;
+  const daysData = currentYearData?.days ?? [];
+  const weeksData = currentYearData?.weeks ?? [];
+  const monthsData = currentYearData?.months ?? [];
 
   const maxDayCount = useMemo(() => {
-    if (!currentYearData?.days?.length) return 0;
-    return Math.max(...currentYearData.days.map((day) => day.count));
+    if (!daysData.length) return 0;
+    return Math.max(...daysData.map((day) => day.count));
   }, [currentYearData]);
 
   const maxWeekCount = useMemo(() => {
-    if (!currentYearData?.weeks?.length) return 0;
-    return Math.max(...currentYearData.weeks.map((week) => week.count));
+    if (!weeksData.length) return 0;
+    return Math.max(...weeksData.map((week) => week.count));
+  }, [currentYearData]);
+
+  const maxMonthCount = useMemo(() => {
+    if (!monthsData.length) return 0;
+    return Math.max(...monthsData.map((month) => month.count));
   }, [currentYearData]);
 
   const yearParam =
@@ -89,6 +113,12 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
     const week = data?.payload?.week ?? data?.week;
     if (!week) return;
     navigate(`/explore?watchedWeek=${encodeURIComponent(week)}${yearParam}`);
+  };
+
+  const handleMonthClick = (data: any) => {
+    const month = data?.payload?.month ?? data?.month;
+    if (!month) return;
+    navigate(`/explore?watchedMonth=${encodeURIComponent(month)}${yearParam}`);
   };
 
   if (!currentYearData) {
@@ -112,7 +142,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
             Hábitos de Visualización
           </h3>
           <p className="text-muted-foreground text-sm">
-            Distribución por días y semanas del año
+            Distribución por días, semanas y meses del año
           </p>
         </div>
         <div className="ml-auto">
@@ -141,7 +171,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           </h4>
         </div>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={currentYearData.days} barCategoryGap="20%">
+            <BarChart data={daysData} barCategoryGap="20%">
               <XAxis
                 dataKey="day"
                 interval={0}
@@ -161,7 +191,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
                 onClick={handleDayClick}
                 className="cursor-pointer"
               >
-                {currentYearData.days.map((entry) => (
+                {daysData.map((entry) => (
                   <Cell
                     key={`day-${entry.day}`}
                     fill={
@@ -181,7 +211,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           Semanas del año
         </h4>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={currentYearData.weeks} barCategoryGap="10%">
+            <BarChart data={weeksData} barCategoryGap="10%">
               <XAxis
                 dataKey="week"
                 interval={4}
@@ -201,7 +231,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
                 onClick={handleWeekClick}
                 className="cursor-pointer"
               >
-                {currentYearData.weeks.map((entry) => (
+                {weeksData.map((entry) => (
                   <Cell
                     key={`week-${entry.week}`}
                     fill={
@@ -214,6 +244,47 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+      </div>
+
+      <div className="bg-card rounded-xl p-5 border border-border">
+        <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
+          Distribución por meses
+        </h4>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={monthsData} barCategoryGap="20%">
+            <XAxis
+              dataKey="month"
+              interval={0}
+              tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(value) => String(value).slice(0, 3)}
+            />
+            <YAxis
+              tick={{ fill: "hsl(215, 15%, 55%)", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip content={<MonthTooltip />} cursor={false} />
+            <Bar
+              dataKey="count"
+              radius={[8, 8, 0, 0]}
+              onClick={handleMonthClick}
+              className="cursor-pointer"
+            >
+              {monthsData.map((entry) => (
+                <Cell
+                  key={`month-${entry.month}`}
+                  fill={
+                    entry.count === maxMonthCount && maxMonthCount > 0
+                      ? "#f97316"
+                      : "#4b5563"
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
