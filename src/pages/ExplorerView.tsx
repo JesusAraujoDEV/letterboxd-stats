@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useMovies } from "@/context/MoviesContext";
 import type { MovieItem } from "@/types/stats";
@@ -138,6 +138,8 @@ const buildChips = (filters: {
 
 const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromHash = location.state?.fromHash || "";
   const [searchParams] = useSearchParams();
   const { allMovies: contextMovies } = useMovies();
   const [storedMovies, setStoredMovies] = useState<MovieItem[]>([]);
@@ -270,7 +272,7 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate(`/${fromHash}`)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background-card text-text-main transition-colors hover:bg-background"
             aria-label="Volver al dashboard"
           >

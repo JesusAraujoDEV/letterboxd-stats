@@ -106,7 +106,9 @@ const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
                       }}
                       onClick={() => {
                         if (!name) return;
-                        navigate(`/explore?country=${encodeURIComponent(name)}`);
+                        navigate(`/explore?country=${encodeURIComponent(name)}`, {
+                          state: { fromHash: "#mapa" },
+                        });
                       }}
                       onMouseEnter={(event) => {
                         if (!count) return;

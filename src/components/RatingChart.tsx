@@ -53,7 +53,9 @@ const RatingChart = ({ distribution }: RatingChartProps) => {
   const handleClick = (entry: any) => {
     const rating = entry?.payload?.name ?? entry?.name;
     if (rating) {
-      navigate(`/explore?rating=${encodeURIComponent(rating)}`);
+      navigate(`/explore?rating=${encodeURIComponent(rating)}`, {
+        state: { fromHash: "#ratings" },
+      });
     }
   };
 

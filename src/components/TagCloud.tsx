@@ -30,7 +30,9 @@ const TagCloud = ({ tags }: TagCloudProps) => {
               key={item.tag}
               type="button"
               onClick={() =>
-                navigate(`/explore?tags=${encodeURIComponent(item.tag)}`)
+                navigate(`/explore?tags=${encodeURIComponent(item.tag)}`, {
+                  state: { fromHash: "#tags" },
+                })
               }
               className={`
                 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium

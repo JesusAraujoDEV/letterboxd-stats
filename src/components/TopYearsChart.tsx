@@ -58,7 +58,9 @@ const TopYearsChart = ({ topYears }: TopYearsChartProps) => {
               onClick={(entry: any) => {
                 const year = entry?.name ?? entry?.payload?.year;
                 if (year) {
-                  navigate(`/explore?watchedYear=${encodeURIComponent(year)}`);
+                  navigate(`/explore?watchedYear=${encodeURIComponent(year)}`, {
+                    state: { fromHash: "#ratings" },
+                  });
                 }
               }}
             >
@@ -76,13 +78,16 @@ const TopYearsChart = ({ topYears }: TopYearsChartProps) => {
               role="button"
               tabIndex={0}
               onClick={() =>
-                navigate(`/explore?watchedYear=${encodeURIComponent(item.year)}`)
+                navigate(`/explore?watchedYear=${encodeURIComponent(item.year)}`, {
+                  state: { fromHash: "#ratings" },
+                })
               }
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
                   navigate(
-                    `/explore?watchedYear=${encodeURIComponent(item.year)}`
+                    `/explore?watchedYear=${encodeURIComponent(item.year)}`,
+                    { state: { fromHash: "#ratings" } }
                   );
                 }
               }}

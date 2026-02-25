@@ -141,7 +141,9 @@ const CastAndCrew = ({
               key={`actor-${person.name}`}
               person={person}
               onClick={() =>
-                navigate(`/explore?actor=${encodeURIComponent(person.name)}`)
+                navigate(`/explore?actor=${encodeURIComponent(person.name)}`, {
+                  state: { fromHash: "#reparto" },
+                })
               }
             />
           ))}
@@ -167,7 +169,9 @@ const CastAndCrew = ({
               key={`director-${person.name}`}
               person={person}
               onClick={() =>
-                navigate(`/explore?director=${encodeURIComponent(person.name)}`)
+                navigate(`/explore?director=${encodeURIComponent(person.name)}`, {
+                  state: { fromHash: "#reparto" },
+                })
               }
             />
           ))}

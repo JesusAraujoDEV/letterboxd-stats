@@ -32,7 +32,8 @@ const LikesSection = ({
       value: totalLikedFilms,
       icon: Heart,
       highlight: null,
-      onClick: () => navigate("/explore?liked=true"),
+      onClick: () =>
+        navigate("/explore?liked=true", { state: { fromHash: "#corazon-critico" } }),
     },
     {
       label: "Reseñas Apoyadas",
@@ -119,14 +120,16 @@ const LikesSection = ({
                   tabIndex={0}
                   onClick={() =>
                     navigate(
-                      `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`
+                      `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`,
+                      { state: { fromHash: "#corazon-critico" } }
                     )
                   }
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       navigate(
-                        `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`
+                        `/explore?watchedYear=${encodeURIComponent(year.year)}&liked=true`,
+                        { state: { fromHash: "#corazon-critico" } }
                       );
                     }
                   }}

@@ -104,7 +104,8 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
                   type="button"
                   onClick={() =>
                     navigate(
-                      `/explore?decade=${encodeURIComponent(decade?.decade ?? "")}`
+                      `/explore?decade=${encodeURIComponent(decade?.decade ?? "")}`,
+                      { state: { fromHash: "#decadas" } }
                     )
                   }
                   className="mt-2 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 cursor-pointer"

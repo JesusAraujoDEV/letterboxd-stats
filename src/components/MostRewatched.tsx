@@ -91,7 +91,11 @@ const MostRewatched = ({ mostRewatchedMovies }: MostRewatchedProps) => {
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => navigate("/explore?rewatched=true")}
+              onClick={() =>
+                navigate("/explore?rewatched=true", {
+                  state: { fromHash: "#repetidas" },
+                })
+              }
               className="rounded-full border border-border bg-card/60 px-6 py-2 text-sm text-foreground transition-colors hover:bg-card cursor-pointer"
             >
               Ver todas las pelis repetidas

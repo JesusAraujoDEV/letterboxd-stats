@@ -90,7 +90,8 @@ const GlobalTastes = ({
                     type="button"
                     onClick={() =>
                       navigate(
-                        `/explore?${card.param}=${encodeURIComponent(item.name)}`
+                        `/explore?${card.param}=${encodeURIComponent(item.name)}`,
+                        { state: { fromHash: "#gustos-globales" } }
                       )
                     }
                     className="relative block w-full overflow-hidden rounded-lg border border-border/60 bg-background-card px-3 py-2 text-left transition-colors hover:bg-background"

@@ -52,7 +52,9 @@ const ReleaseYearTimeline = ({
   const handleClick = (data: any) => {
     const year = data?.payload?.year ?? data?.activeLabel;
     if (year) {
-      navigate(`/explore?releaseYear=${encodeURIComponent(year)}`);
+      navigate(`/explore?releaseYear=${encodeURIComponent(year)}`, {
+        state: { fromHash: "#evolucion" },
+      });
     }
   };
 
