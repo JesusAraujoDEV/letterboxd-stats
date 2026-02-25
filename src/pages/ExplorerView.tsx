@@ -323,21 +323,76 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
 
                   <div className="absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 px-3 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute inset-0 z-10 flex flex-col justify-center gap-3 px-3 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <h3 className="text-center text-lg font-bold text-white">
                       {movie.title}
                     </h3>
-                    <div className="text-sm text-white">
+                    <div className="flex w-full items-center justify-center text-sm text-white">
                       {maxRating > 0 ? (
                         <span>{renderStarsEmoji(maxRating)}</span>
                       ) : (
                         <span className="text-white/70">Sin rating</span>
                       )}
                     </div>
-                    {movie.liked && <div className="text-xl text-red-500">❤️</div>}
-                    {latestDate && (
-                      <div className="text-xs text-white/70">{latestDate}</div>
+                    {movie.liked && (
+                      <div className="flex w-full items-center justify-center text-xl text-red-500">
+                        ❤️
+                      </div>
                     )}
+                    {latestDate && (
+                      <div className="w-full text-center text-xs text-white/70">
+                        {latestDate}
+                      </div>
+                    )}
+                    <div className="mt-4 flex w-full flex-col gap-3 px-4 text-xs">
+                      {movie.genres && movie.genres.length > 0 && (
+                        <div className="flex w-full flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                            Géneros
+                          </span>
+                          {movie.genres.slice(0, 3).map((g, idx) => (
+                            <span
+                              key={`${g}-${idx}`}
+                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
+                            >
+                              {g}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {movie.countries && movie.countries.length > 0 && (
+                        <div className="flex w-full flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                            Países
+                          </span>
+                          {movie.countries.slice(0, 3).map((c, idx) => (
+                            <span
+                              key={`${c}-${idx}`}
+                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {movie.languages && movie.languages.length > 0 && (
+                        <div className="flex w-full flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                            Idiomas
+                          </span>
+                          {movie.languages.slice(0, 3).map((l, idx) => (
+                            <span
+                              key={`${l}-${idx}`}
+                              className="w-full truncate rounded bg-white/10 px-2 py-1 text-left text-white backdrop-blur-sm"
+                            >
+                              {l}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

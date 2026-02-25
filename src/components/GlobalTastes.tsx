@@ -30,24 +30,24 @@ const GlobalTastes = ({
       icon: Clapperboard,
       param: "genre",
       items: topGenres ?? [],
-      accent: "from-emerald-400/30 via-emerald-400/10 to-transparent",
-      bar: "bg-emerald-400/25",
+      accent: "from-orange-400/35 via-orange-400/15 to-transparent",
+      bar: "bg-orange-400/30",
     },
     {
       title: "Países de Origen",
       icon: Globe,
       param: "country",
       items: topCountries ?? [],
-      accent: "from-sky-400/30 via-sky-400/10 to-transparent",
-      bar: "bg-sky-400/25",
+      accent: "from-green-400/35 via-green-400/15 to-transparent",
+      bar: "bg-green-400/30",
     },
     {
       title: "Idiomas",
       icon: MessageCircle,
       param: "language",
       items: topLanguages ?? [],
-      accent: "from-violet-400/30 via-violet-400/10 to-transparent",
-      bar: "bg-violet-400/25",
+      accent: "from-blue-400/35 via-blue-400/15 to-transparent",
+      bar: "bg-blue-400/30",
     },
   ];
 
@@ -93,7 +93,7 @@ const GlobalTastes = ({
                         `/explore?${card.param}=${encodeURIComponent(item.name)}`
                       )
                     }
-                    className="relative overflow-hidden rounded-lg border border-white/5 bg-[#14181c] px-3 py-2"
+                    className="relative block w-full overflow-hidden rounded-lg border border-white/5 bg-[#14181c] px-3 py-2 text-left transition-colors hover:bg-white/5"
                     title={`Has visto ${item.count} películas de ${item.name}`}
                   >
                     <div
