@@ -14,6 +14,7 @@ export interface MovieStats {
   ratingDistribution: Record<string, number>;
   moviesByReleaseYear: { year: string; count: number }[];
   averageRatingByReleaseYear: { year: string; average: number }[];
+  watchedYearStats: { year: string; count: number; averageRating: number }[];
   topYears: { year: string; count: number }[];
   topTags: { tag: string; count: number }[];
   deletedDiaryCount: number;
@@ -140,6 +141,13 @@ export const MOCK_DATA: MovieStats = {
     { year: "2010", average: 3.6 },
     { year: "2020", average: 3.7 },
     { year: "2025", average: 4.1 },
+  ],
+  watchedYearStats: [
+    { year: "2021", count: 42, averageRating: 3.6 },
+    { year: "2022", count: 58, averageRating: 3.7 },
+    { year: "2023", count: 75, averageRating: 3.8 },
+    { year: "2024", count: 90, averageRating: 3.9 },
+    { year: "2025", count: 110, averageRating: 4.0 },
   ],
   topYears: [
     { year: "2025", count: 33 },

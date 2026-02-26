@@ -5,6 +5,7 @@ import TagCloud from "./TagCloud";
 import ProfileHeader from "./ProfileHeader";
 import StatsGrid from "./StatsGrid";
 import ReleaseYearTimeline from "./ReleaseYearTimeline";
+import WatchedYearActivityChart from "./WatchedYearActivityChart";
 import GraveyardSection from "./GraveyardSection";
 import LikesSection from "./LikesSection";
 import TopDecades from "./TopDecades";
@@ -70,10 +71,15 @@ const Dashboard = ({ data }: DashboardProps) => {
       </section>
 
       <section id="evolucion" data-scrollspy="true">
-        <ReleaseYearTimeline
-          moviesByReleaseYear={data.moviesByReleaseYear}
-          averageRatingByReleaseYear={data.averageRatingByReleaseYear}
-        />
+        <div className="space-y-4">
+          <ReleaseYearTimeline
+            moviesByReleaseYear={data.moviesByReleaseYear}
+            averageRatingByReleaseYear={data.averageRatingByReleaseYear}
+          />
+          <WatchedYearActivityChart
+            watchedYearStats={data.watchedYearStats ?? []}
+          />
+        </div>
       </section>
 
       <section id="habitos-visualizacion" data-scrollspy="true">
