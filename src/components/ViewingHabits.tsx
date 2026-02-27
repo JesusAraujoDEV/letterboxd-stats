@@ -9,6 +9,8 @@ import {
   YAxis,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { useMovies } from "@/context/MoviesContext";
+import ViewingHeatmap from "./ViewingHeatmap";
 
 interface ActivityStatsYearData {
   days: { day: string; count: number }[];
@@ -75,7 +77,12 @@ const MonthTooltip = ({ active, payload }: any) => {
 const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const { availableYears, byYear } = activityStats;
   const navigate = useNavigate();
+  const { allMovies } = useMovies();
   const [selectedYear, setSelectedYear] = useState(availableYears[0]);
+
+  const globalLogs = useMemo(() => {
+    return (allMovies ?? []).flatMap((movie) => movie.diaryLogs ?? []);
+  }, [allMovies]);
 
   const currentYearKey = selectedYear ?? availableYears[0];
   const currentYearData = currentYearKey ? byYear[currentYearKey] : undefined;
@@ -163,6 +170,8 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           </select>
         </div>
       </div>
+
+      <ViewingHeatmap logs={globalLogs} selectedYear={selectedYear} />
 
       <div className="bg-card rounded-xl p-5 border border-border">
         <div className="flex items-center justify-between mb-3">
