@@ -1,4 +1,5 @@
 import { MapPin, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type Profile = {
   username: string;
@@ -11,6 +12,7 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
+  const navigate = useNavigate();
   const username = profile?.username ?? "Usuario";
   const initial = username.trim().charAt(0)?.toUpperCase() ?? "U";
 
@@ -36,9 +38,21 @@ const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
           )}
         </div>
       </div>
-      {profile?.bio && (
-        <p className="text-sm text-text-muted leading-relaxed">{profile.bio}</p>
-      )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        {profile?.bio && (
+          <p className="text-sm text-text-muted leading-relaxed">
+            {profile.bio}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => navigate("/explore")}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 via-sky-500 to-violet-500 px-5 py-2 text-xs font-semibold text-white shadow-lg transition-all hover:scale-105 sm:w-auto"
+        >
+          <span aria-hidden>🍿</span>
+          Abrir Explorador Avanzado
+        </button>
+      </div>
     </div>
   );
 };

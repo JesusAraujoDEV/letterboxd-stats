@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-type PersonItem = {
+export type PersonItem = {
   name: string;
   count: number;
   profilePath: string | null;
@@ -182,3 +182,4 @@ const CastAndCrew = ({
 };
 
 export default CastAndCrew;
+export { PersonCard };

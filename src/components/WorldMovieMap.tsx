@@ -13,6 +13,7 @@ interface CountryStat {
 
 interface WorldMovieMapProps {
   allCountries: CountryStat[];
+  onCountryClick?: (country: string) => void;
 }
 
 const TOPOLOGY_URL =
@@ -46,7 +47,7 @@ const getFill = (count: number, max: number) => {
   return interpolateColor(MIN_COLOR, MAX_COLOR, ratio);
 };
 
-const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
+const WorldMovieMap = ({ allCountries, onCountryClick }: WorldMovieMapProps) => {
   const navigate = useNavigate();
   const [tooltip, setTooltip] = useState<{
     name: string;
@@ -106,6 +107,10 @@ const WorldMovieMap = ({ allCountries }: WorldMovieMapProps) => {
                       }}
                       onClick={() => {
                         if (!name) return;
+                        if (onCountryClick) {
+                          onCountryClick(name);
+                          return;
+                        }
                         navigate(`/explore?country=${encodeURIComponent(name)}`, {
                           state: { fromHash: "#mapa" },
                         });
