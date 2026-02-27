@@ -3,6 +3,7 @@ import {
   Clapperboard,
   Copy,
   Download,
+  Film,
   MessageCircleHeart,
   Share,
   Share2,
@@ -200,24 +201,23 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
                   key={`${user.username}-comment-${index}`}
                   className="flex gap-3 rounded-lg border border-border/50 bg-background p-3 shadow-sm transition-colors hover:bg-white/5"
                 >
-                  <div className="h-16 w-11 shrink-0 overflow-hidden rounded bg-background-card border border-border">
+                  <div className="flex h-16 w-11 shrink-0 items-center justify-center overflow-hidden rounded bg-primary/10 border border-primary/20 text-primary">
                     {comment.posterUrl ? (
                       <img
                         src={comment.posterUrl}
                         alt={comment.movie || "Poster"}
                         className="h-full w-full object-cover"
+                        crossOrigin="anonymous"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[9px] text-text-muted">
-                        N/A
-                      </div>
+                      <Film className="h-5 w-5 opacity-50" />
                     )}
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col justify-center">
                     <div className="mb-1 flex items-center justify-between gap-2">
                       <span className="truncate text-xs font-bold text-primary">
-                        {comment.movie ? comment.movie : "Carta / Lista"}
+                        {comment.movie ? comment.movie : "Película"}
                       </span>
                       <span className="whitespace-nowrap text-[10px] font-medium text-text-muted">
                         {comment.date}
