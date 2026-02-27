@@ -14,6 +14,7 @@ import WorldMovieMap from "./WorldMovieMap";
 import MostRewatched from "./MostRewatched";
 import CastAndCrew from "./CastAndCrew";
 import ViewingHabits from "./ViewingHabits";
+import TopInteractions from "./TopInteractions";
 import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
@@ -99,6 +100,10 @@ const Dashboard = ({ data }: DashboardProps) => {
           totalLikedReviews={data.totalLikedReviews}
           topLikedYears={data.topLikedYears}
         />
+      </section>
+
+      <section id="interacciones" data-scrollspy="true">
+        <TopInteractions users={data.topInteractedUsers ?? []} />
       </section>
 
       <section id="decadas" data-scrollspy="true">

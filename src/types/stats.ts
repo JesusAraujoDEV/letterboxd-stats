@@ -37,7 +37,15 @@ export interface MovieStats {
   topDirectorsAllTime: PersonStat[];
   topDirectorsLogged: PersonStat[];
   allMovies: MovieItem[];
+  topInteractedUsers?: InteractedUser[];
   activityStats?: ActivityStats;
+}
+
+export interface InteractedUser {
+  username: string;
+  interactionCount: number;
+  avatarUrl?: string | null;
+  comments: { date: string; text: string }[];
 }
 
 export interface ActivityStatsYearData {
