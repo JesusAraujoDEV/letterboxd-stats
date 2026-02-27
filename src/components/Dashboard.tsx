@@ -40,8 +40,6 @@ function StatsOverviewExport({ data }: { data: MovieStats }) {
       const dataUrl = await htmlToImage.toPng(exportRef.current, {
         quality: 1,
         pixelRatio: 3,
-        useCORS: true,
-        allowTaint: true,
         backgroundColor: "#0d1117"
       });
       const res = await fetch(dataUrl);
@@ -225,7 +223,6 @@ const Dashboard = ({ data }: DashboardProps) => {
           activityStats={
             data.activityStats ?? { availableYears: [], byYear: {} }
           }
-          watchedYearStats={data.watchedYearStats ?? []}
         />
       </section>
 
