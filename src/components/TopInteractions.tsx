@@ -61,12 +61,35 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
               {user.comments.map((comment, index) => (
                 <div
                   key={`${user.username}-comment-${index}`}
-                  className="rounded-lg border border-border/50 bg-background p-3"
+                  className="flex gap-3 rounded-lg border border-border/50 bg-background p-3 shadow-sm transition-colors hover:bg-white/5"
                 >
-                  <p className="mb-1 text-xs font-medium text-text-muted">
-                    {comment.date}
-                  </p>
-                  <p className="text-sm text-text-main italic">"{comment.text}"</p>
+                  <div className="h-16 w-11 shrink-0 overflow-hidden rounded bg-background-card border border-border">
+                    {comment.posterUrl ? (
+                      <img
+                        src={comment.posterUrl}
+                        alt={comment.movie || "Poster"}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[9px] text-text-muted">
+                        N/A
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col justify-center">
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <span className="truncate text-xs font-bold text-primary">
+                        {comment.movie ? comment.movie : "Carta / Lista"}
+                      </span>
+                      <span className="whitespace-nowrap text-[10px] font-medium text-text-muted">
+                        {comment.date}
+                      </span>
+                    </div>
+                    <p className="break-words text-sm italic text-text-main">
+                      "{comment.text}"
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

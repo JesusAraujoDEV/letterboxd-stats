@@ -45,7 +45,7 @@ export interface InteractedUser {
   username: string;
   interactionCount: number;
   avatarUrl?: string | null;
-  comments: { date: string; text: string }[];
+  comments: { date: string; text: string; movie?: string; posterUrl?: string | null }[];
 }
 
 export interface ActivityStatsYearData {
