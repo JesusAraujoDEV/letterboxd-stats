@@ -1,5 +1,12 @@
 import { useRef, useState } from "react";
-import { Clapperboard, MessageCircleHeart, Share2 } from "lucide-react";
+import {
+  Clapperboard,
+  Copy,
+  Download,
+  MessageCircleHeart,
+  Share,
+  Share2,
+} from "lucide-react";
 import * as htmlToImage from "html-to-image";
 import type { InteractedUser } from "@/types/stats";
 
@@ -7,21 +14,23 @@ interface TopInteractionsProps {
   users: InteractedUser[];
 }
 
-const getCorsImageUrl = (url?: string | null) => {
+const getCorsImageUrl = (url?: string | null, cacheKey?: string) => {
   if (!url) return undefined;
-  return `https://images.weserv.nl/?url=${encodeURIComponent(
+  const base = `https://images.weserv.nl/?url=${encodeURIComponent(
     url
   )}&default=${encodeURIComponent(url)}`;
+  return cacheKey ? `${base}&cb=${encodeURIComponent(cacheKey)}` : base;
 };
 
 const TopInteractions = ({ users }: TopInteractionsProps) => {
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   if (!users || users.length === 0) return null;
 
-  const handleExport = async () => {
-    if (!exportRef.current) return;
+  const generateImageBlob = async () => {
+    if (!exportRef.current) return null;
     setIsExporting(true);
     try {
       const dataUrl = await htmlToImage.toPng(exportRef.current, {
@@ -30,16 +39,57 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#0d1117",
-      });
-
-      const link = document.createElement("a");
-      link.download = "statsboxd-top-interacciones.png";
-      link.href = dataUrl;
-      link.click();
+      } as any);
+      const res = await fetch(dataUrl);
+      return await res.blob();
     } catch (error) {
-      console.error("Error exportando la imagen", error);
+      console.error("Error generando imagen", error);
+      return null;
     } finally {
       setIsExporting(false);
+      setShowMenu(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = "statsboxd-top-amigos.png";
+    link.href = url;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleCopy = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ [blob.type]: blob }),
+      ]);
+      alert("¡Imagen copiada al portapapeles!");
+    } catch (err) {
+      alert("Tu navegador no permite copiar imágenes automáticamente.");
+    }
+  };
+
+  const handleShare = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const file = new File([blob], "statsboxd.png", { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: "Mis Top Amigos en Letterboxd",
+          files: [file],
+        });
+      } catch (err) {
+        console.log("Compartir cancelado o fallido");
+      }
+    } else {
+      handleDownload();
     }
   };
 
@@ -59,15 +109,42 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={isExporting}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-text-main transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Share2 className="h-4 w-4" />
-          {isExporting ? "Exportando..." : "Compartir"}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMenu(!showMenu)}
+            disabled={isExporting}
+            className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Share2 className="h-4 w-4" />
+            {isExporting ? "Generando..." : "Compartir"}
+          </button>
+          {showMenu && !isExporting && (
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+              <button
+                type="button"
+                onClick={handleShare}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
+              </button>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
+              </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Download className="h-4 w-4 text-text-muted" /> Descargar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -146,17 +223,17 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
       <div className="absolute -left-[9999px] top-0">
         <div
           ref={exportRef}
-          className="flex w-[450px] flex-col justify-between rounded-[2.5rem] p-10 shadow-2xl"
+          className="flex w-[450px] flex-col justify-between min-h-[600px] rounded-[2.5rem] p-10 shadow-2xl"
           style={{ background: "linear-gradient(135deg, #14181c 0%, #1a2127 100%)" }}
         >
-          <div className="mb-10 mt-4 flex flex-col items-center text-center">
-            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 shadow-inner">
-              <MessageCircleHeart className="h-10 w-10 text-white/90" />
+          <div className="mb-6 mt-2 flex flex-col items-center text-center">
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 shadow-inner">
+              <MessageCircleHeart className="h-7 w-7 text-white/90" />
             </div>
-            <h2 className="text-3xl font-black text-white tracking-tight">
-              Interacciones<br />Principales
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              Interacciones Principales
             </h2>
-            <p className="mt-2 text-lg font-medium text-gray-400">
+            <p className="mt-1 text-sm font-medium text-gray-400">
               Usuarios con más comentarios tuyos
             </p>
           </div>
@@ -172,7 +249,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
                 <div className="flex h-14 w-14 shrink-0 overflow-hidden rounded-full bg-primary/20 border-2 border-white/10 items-center justify-center text-lg font-bold text-primary uppercase">
                   {user.avatarUrl ? (
                     <img
-                      src={getCorsImageUrl(user.avatarUrl)}
+                      src={getCorsImageUrl(user.avatarUrl, user.username)}
                       alt={user.username}
                       className="h-full w-full object-cover"
                       crossOrigin="anonymous"
@@ -192,7 +269,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
               </div>
             ))}
           </div>
-          <div className="mt-14 mb-4 flex items-center justify-center gap-3 border-t border-white/10 pt-8">
+          <div className="mt-auto mb-6 flex items-center justify-center gap-3 border-t border-white/10 pt-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00E054]/20">
               <Clapperboard className="h-5 w-5 text-[#00E054]" />
             </div>
