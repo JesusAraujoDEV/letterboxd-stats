@@ -22,6 +22,7 @@ import {
 import type { MovieItem } from "@/types/stats";
 import { useMovies } from "@/context/MoviesContext";
 import { PersonCard } from "@/components/CastAndCrew";
+import ViewingHeatmap from "@/components/ViewingHeatmap";
 import WorldMovieMap from "@/components/WorldMovieMap";
 import { COUNTRY_CODE_TO_NAME } from "@/lib/countries";
 
@@ -1423,6 +1424,11 @@ const ExplorerView = ({ allMovies }: ExplorerViewProps) => {
                 </select>
               </div>
             </div>
+
+            <ViewingHeatmap
+              logs={filteredViewingLogs}
+              selectedYear={selectedViewingYear}
+            />
 
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <div className="bg-card rounded-xl p-5 border border-border">
