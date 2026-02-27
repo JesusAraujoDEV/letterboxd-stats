@@ -16,16 +16,27 @@ interface TopInteractionsProps {
 
 const getCorsImageUrl = (url?: string | null, cacheKey?: string) => {
   if (!url) return undefined;
+  const nonce = Math.random().toString(36).slice(2);
   const base = `https://images.weserv.nl/?url=${encodeURIComponent(
     url
   )}&default=${encodeURIComponent(url)}`;
-  return cacheKey ? `${base}&cb=${encodeURIComponent(cacheKey)}` : base;
+  return cacheKey
+    ? `${base}&cb=${encodeURIComponent(`${cacheKey}-${nonce}`)}`
+    : `${base}&cb=${encodeURIComponent(nonce)}`;
 };
 
 const TopInteractions = ({ users }: TopInteractionsProps) => {
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   if (!users || users.length === 0) return null;
 
@@ -38,6 +49,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
         pixelRatio: 3,
         useCORS: true,
         allowTaint: true,
+        cacheBust: true,
         backgroundColor: "#0d1117",
       } as any);
       const res = await fetch(dataUrl);
@@ -60,6 +72,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
     link.href = url;
     link.click();
     window.URL.revokeObjectURL(url);
+    showToast("¡Imagen descargada!");
   };
 
   const handleCopy = async () => {
@@ -69,9 +82,9 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
       await navigator.clipboard.write([
         new ClipboardItem({ [blob.type]: blob }),
       ]);
-      alert("¡Imagen copiada al portapapeles!");
+      showToast("¡Copiada al portapapeles!");
     } catch (err) {
-      alert("Tu navegador no permite copiar imágenes automáticamente.");
+      showToast("Error al copiar");
     }
   };
 
@@ -85,6 +98,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
           title: "Mis Top Amigos en Letterboxd",
           files: [file],
         });
+        showToast("¡Compartido con éxito!");
       } catch (err) {
         console.log("Compartir cancelado o fallido");
       }
@@ -279,6 +293,25 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
           </div>
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-black shadow-2xl transition-all animate-in slide-in-from-bottom-8 fade-in duration-300">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 };
