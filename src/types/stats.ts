@@ -10,7 +10,8 @@ export interface MovieStats {
   totalReviews: number;
   totalComments: number;
   totalHoursWatched: number;
-  averageRating: number;
+  averageRating?: number;
+  longestStreak?: number;
   ratingDistribution: Record<string, number>;
   moviesByReleaseYear: { year: string; count: number }[];
   averageRatingByReleaseYear: { year: string; average: number }[];

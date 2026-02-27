@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import * as htmlToImage from "html-to-image";
+import { Share2, Download, Copy, Share, Clapperboard, Star, Flame, Film, BookOpen, Bookmark, PenTool, MessageSquare, Clock } from "lucide-react";
 import RatingChart from "./RatingChart";
 import TopYearsChart from "./TopYearsChart";
 import TagCloud from "./TagCloud";
 import ProfileHeader from "./ProfileHeader";
-import StatsGrid from "./StatsGrid";
 import ReleaseYearTimeline from "./ReleaseYearTimeline";
 import WatchedYearActivityChart from "./WatchedYearActivityChart";
 import GraveyardSection from "./GraveyardSection";
@@ -19,6 +20,149 @@ import type { MovieStats } from "@/types/stats";
 
 interface DashboardProps {
   data: MovieStats;
+}
+
+function StatsOverviewExport({ data }: { data: MovieStats }) {
+  const exportRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  async function generateImageBlob() {
+    if (!exportRef.current) return null;
+    setIsExporting(true);
+    try {
+      const dataUrl = await htmlToImage.toPng(exportRef.current, {
+        quality: 1,
+        pixelRatio: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#0d1117"
+      });
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    } catch (e) {
+      console.error(e);
+      showToast("Error al generar imagen");
+      return null;
+    } finally {
+      setIsExporting(false);
+      setShowMenu(false);
+    }
+  }
+
+  async function handleDownload() {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "statsboxd-general.png";
+    link.click();
+    window.URL.revokeObjectURL(url);
+    showToast("¡Imagen descargada!");
+  }
+
+  async function handleCopy() {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([
+        new window.ClipboardItem({ [blob.type]: blob })
+      ]);
+      showToast("¡Copiada al portapapeles!");
+    } catch {
+      showToast("Error al copiar imagen");
+    }
+  }
+
+  async function handleShare() {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const file = new File([blob], "statsboxd.png", { type: blob.type });
+    if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
+      try {
+        await (navigator as any).share({
+          title: "Mis estadísticas Statsboxd",
+          files: [file],
+        });
+        showToast("¡Compartido con éxito!");
+      } catch {
+        console.log("Compartir cancelado");
+      }
+    } else {
+      handleDownload();
+    }
+  }
+
+  return (
+    <div className="relative">
+      {/* Botón Compartir y Título */}
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-2xl font-heading font-bold text-text-main">Tu Resumen</h2>
+        <div className="relative z-10">
+          <button onClick={() => setShowMenu(!showMenu)} disabled={isExporting} className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50">
+            <Share2 className="h-4 w-4" /> {isExporting ? "Generando..." : "Compartir"}
+          </button>
+          {showMenu && !isExporting && (
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+              <button onClick={handleShare} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Share className="h-4 w-4 text-text-muted" /> Compartir (App)</button>
+              <button onClick={handleCopy} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Copy className="h-4 w-4 text-text-muted" /> Copiar imagen</button>
+              <button onClick={handleDownload} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Download className="h-4 w-4 text-text-muted" /> Descargar</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CUADRÍCULA VISIBLE */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mt-6">
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Películas Vistas</span><Film className="h-4 w-4 text-green-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalMovies}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Películas Logeadas</span><BookOpen className="h-4 w-4 text-blue-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalLoggedMovies}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">En Watchlist</span><Bookmark className="h-4 w-4 text-purple-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalWatchlist}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Reseñas</span><PenTool className="h-4 w-4 text-pink-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalReviews}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Comentarios</span><MessageSquare className="h-4 w-4 text-cyan-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalComments}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Horas Vistas</span><Clock className="h-4 w-4 text-indigo-500" /></div><p className="text-2xl font-bold text-text-main">{data.totalHoursWatched} h</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Nota Promedio</span><Star className="h-4 w-4 text-yellow-500" /></div><p className="text-2xl font-bold text-text-main">{data.averageRating?.toFixed(2) || "0.00"}</p></div>
+        <div className="rounded-xl border border-border bg-background-card p-4"><div className="flex justify-between text-text-muted mb-2"><span className="text-xs font-semibold">Racha Más Larga</span><Flame className="h-4 w-4 text-orange-500" /></div><p className="text-2xl font-bold text-text-main">{data.longestStreak || 0} <span className="text-sm font-normal text-text-muted">días</span></p></div>
+      </div>
+
+      {/* TARJETA OCULTA PARA IG STORY (OFFSCREEN) */}
+      <div className="absolute -left-[9999px] top-0">
+        <div ref={exportRef} className="flex w-[450px] flex-col justify-between rounded-[2.5rem] p-10 shadow-2xl" style={{ background: "linear-gradient(135deg, #14181c 0%, #00e05420 100%)" }}>
+          <div className="mb-8 mt-4 flex flex-col items-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+              <Clapperboard className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="text-3xl font-black text-white tracking-tight">Mi Vida<br/>Cinéfila</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Películas Vistas</p><p className="text-2xl font-bold text-white">{data.totalMovies}</p></div>
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Horas Vistas</p><p className="text-2xl font-bold text-white">{data.totalHoursWatched} h</p></div>
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Nota Promedio</p><p className="text-2xl font-bold text-yellow-400">{data.averageRating?.toFixed(2) || "0.00"}</p></div>
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Racha (Días)</p><p className="text-2xl font-bold text-orange-400">{data.longestStreak || 0} 🔥</p></div>
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Reseñas</p><p className="text-xl font-bold text-white">{data.totalReviews}</p></div>
+            <div className="rounded-2xl bg-white/5 p-4 border border-white/10"><p className="text-xs text-gray-400 font-semibold mb-1">Comentarios</p><p className="text-xl font-bold text-white">{data.totalComments}</p></div>
+          </div>
+          <div className="mt-12 mb-2 flex items-center justify-center gap-3 border-t border-white/10 pt-6">
+            <span className="text-xl font-bold tracking-wide text-white/90">Statsboxd.jesusaraujo.lat</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Notificación Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-black shadow-2xl animate-in slide-in-from-bottom-8 fade-in duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          {toastMessage}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const Dashboard = ({ data }: DashboardProps) => {
@@ -61,14 +205,7 @@ const Dashboard = ({ data }: DashboardProps) => {
       </section>
 
       <section id="resumen" data-scrollspy="true">
-        <StatsGrid
-          totalMovies={data.totalMovies}
-          totalLoggedMovies={data.totalLoggedMovies}
-          totalWatchlist={data.totalWatchlist}
-          totalReviews={data.totalReviews}
-          totalComments={data.totalComments}
-          totalHoursWatched={data.totalHoursWatched}
-        />
+        <StatsOverviewExport data={data} />
       </section>
 
       <section id="evolucion" data-scrollspy="true">
@@ -88,6 +225,7 @@ const Dashboard = ({ data }: DashboardProps) => {
           activityStats={
             data.activityStats ?? { availableYears: [], byYear: {} }
           }
+          watchedYearStats={data.watchedYearStats ?? []}
         />
       </section>
 
@@ -135,7 +273,6 @@ const Dashboard = ({ data }: DashboardProps) => {
         />
       </section>
 
-      {/* Charts Row */}
       <section id="ratings" data-scrollspy="true">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RatingChart distribution={data.ratingDistribution} />
@@ -143,7 +280,6 @@ const Dashboard = ({ data }: DashboardProps) => {
         </div>
       </section>
 
-      {/* Tags */}
       <section id="tags" data-scrollspy="true">
         <TagCloud tags={data.topTags} />
       </section>
