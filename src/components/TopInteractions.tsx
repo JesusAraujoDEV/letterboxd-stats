@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import * as htmlToImage from "html-to-image";
 import type { InteractedUser } from "@/types/stats";
+import Toast from "./Toast";
 
 interface TopInteractionsProps {
   users: InteractedUser[];
@@ -294,24 +295,7 @@ const TopInteractions = ({ users }: TopInteractionsProps) => {
         </div>
       </div>
 
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-black shadow-2xl transition-all animate-in slide-in-from-bottom-8 fade-in duration-300">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          {toastMessage}
-        </div>
-      )}
+      <Toast message={toastMessage} />
     </div>
   );
 };

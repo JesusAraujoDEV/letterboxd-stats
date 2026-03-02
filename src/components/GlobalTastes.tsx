@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Toast from "./Toast";
 
 interface TasteItem {
   name: string;
@@ -354,11 +355,7 @@ const GlobalTastes = ({
         </div>
       </div>
 
-      {toastMessage && (
-        <div className="fixed right-6 top-6 z-50 rounded-md bg-white/6 px-4 py-2 text-sm text-white/90">
-          {toastMessage}
-        </div>
-      )}
+      <Toast message={toastMessage} />
     </>
   );
 };

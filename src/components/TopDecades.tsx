@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
 import { Star, Share2, Download, Copy, Share, Clapperboard, Hourglass } from "lucide-react";
 import type { TopDecade, TopDecadeMovie } from "@/types/stats";
+import Toast from "./Toast";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 const TMDB_IMAGE_BASE_URL_W200 = "https://image.tmdb.org/t/p/w200";
@@ -296,10 +297,7 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
         </div>
       </div>
 
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed right-6 top-6 z-50 rounded-md bg-white/6 px-4 py-2 text-sm text-white/90">{toastMessage}</div>
-      )}
+      <Toast message={toastMessage} />
     </>
   );
 };

@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ComposableMap,
   Geographies,
   Geography,
 } from "react-simple-maps";
 import { useNavigate } from "react-router-dom";
+import * as htmlToImage from "html-to-image";
+import { Share2, Download, Copy, Share, MapPin, Clapperboard } from "lucide-react";
+import Toast from "./Toast";
 
 interface CountryStat {
   name: string;
@@ -67,15 +70,144 @@ const WorldMovieMap = ({ allCountries, onCountryClick }: WorldMovieMapProps) => 
     return { countryMap: map, maxCount: max };
   }, [allCountries]);
 
+  const topCountry = useMemo(() => {
+    if (!allCountries || allCountries.length === 0) return null;
+    let top = allCountries[0];
+    for (const c of allCountries) {
+      if ((c.count ?? 0) > (top.count ?? 0)) top = c;
+    }
+    return { name: top.name, count: top.count };
+  }, [allCountries]);
+
+  const exportRef = useRef<HTMLDivElement | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const generateImageBlob = async () => {
+    if (!exportRef.current) return null;
+    setIsExporting(true);
+    try {
+      const dataUrl = await htmlToImage.toPng(exportRef.current, {
+        quality: 1,
+        pixelRatio: 3,
+        useCORS: true,
+        allowTaint: true,
+        cacheBust: true,
+        backgroundColor: "#0d1117",
+      } as any);
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    } catch (err) {
+      console.error(err);
+      showToast("Error generando imagen");
+      return null;
+    } finally {
+      setIsExporting(false);
+      setShowMenu(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = "mi-mapa-cine.png";
+    link.href = url;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    showToast("¡Imagen descargada!");
+  };
+
+  const handleCopy = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    try {
+      // @ts-ignore
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      showToast("¡Copiada al portapapeles!");
+    } catch (err) {
+      console.error(err);
+      showToast("Error al copiar");
+    }
+  };
+
+  const handleShare = async () => {
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    const file = new File([blob], "mi-mapa-cine.png", { type: blob.type });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        // @ts-ignore
+        await navigator.share({ title: "Mi Mapa Cinéfilo", files: [file] });
+        showToast("¡Compartido con éxito!");
+      } else if (navigator.share) {
+        await navigator.share({ title: "Mi Mapa Cinéfilo" });
+        showToast("¡Compartido!");
+      } else {
+        showToast("Compartir no soportado");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error al compartir");
+    }
+  };
+
   return (
     <section className="rounded-2xl border border-border bg-card/60 p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-heading font-semibold text-foreground">
-          Mapa Mundial de Películas
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Dónde has visto más cine alrededor del mundo
-        </p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h3 className="text-lg font-heading font-semibold text-foreground">
+            Mapa Mundial de Películas
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Dónde has visto más cine alrededor del mundo
+          </p>
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMenu(!showMenu)}
+            disabled={isExporting}
+            className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Share2 className="h-4 w-4" />
+            {isExporting ? "Generando..." : "Compartir"}
+          </button>
+
+          {showMenu && !isExporting && (
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+              <button
+                type="button"
+                onClick={handleShare}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
+              </button>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
+              </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+              >
+                <Download className="h-4 w-4 text-text-muted" /> Descargar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="relative overflow-x-auto">
@@ -151,13 +283,63 @@ const WorldMovieMap = ({ allCountries, onCountryClick }: WorldMovieMapProps) => 
               top: tooltip.y + 12,
             }}
           >
-            <span className="font-semibold text-amber-300">
-              {tooltip.name}
-            </span>
+            <span className="font-semibold text-amber-300">{tooltip.name}</span>
             : {tooltip.count} películas
           </div>
         )}
+
+        {/* Off-screen export card */}
+        <div className="absolute -left-[9999px] top-0" aria-hidden>
+          <div
+            ref={exportRef}
+            className="w-[550px] rounded-2xl p-10"
+            style={{ background: "linear-gradient(135deg,#14181c 0%,#431407 100%)" }}
+          >
+            <h2 className="text-3xl font-black text-white">Mi Mapa Cinéfilo</h2>
+
+            <div className="mt-4 mb-6 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <MapPin className="h-6 w-6 text-[#ff8000]" />
+              <div>
+                <div className="text-sm text-white/80">País más visto:</div>
+                <div className="text-lg font-semibold text-white">
+                  {topCountry?.name ?? "-"}
+                </div>
+                <div className="text-sm text-white/70">{topCountry?.count ?? 0} películas</div>
+              </div>
+            </div>
+
+            <div className="w-[470px]">
+              <ComposableMap projectionConfig={{ scale: 145 }} className="w-full h-auto">
+                <Geographies geography={TOPOLOGY_URL}>
+                  {({ geographies }) =>
+                    geographies.map((geo) => {
+                      const name = String(geo.properties?.name ?? "");
+                      const count = countryMap.get(normalizeName(name)) ?? 0;
+                      const fill = getFill(count, maxCount);
+                      return (
+                        <Geography
+                          key={geo.rsmKey}
+                          geography={geo}
+                          fill={fill}
+                          stroke="#111418"
+                          strokeWidth={0.4}
+                          style={{ default: { outline: "none" } }}
+                        />
+                      );
+                    })
+                  }
+                </Geographies>
+              </ComposableMap>
+            </div>
+
+            <div className="mt-8 flex items-center justify-center gap-2 text-sm text-white/60">
+              <Clapperboard className="h-4 w-4" />
+              <span>Statsboxd.jesusaraujo.lat</span>
+            </div>
+          </div>
+        </div>
       </div>
+      <Toast message={toastMessage} />
     </section>
   );
 };
