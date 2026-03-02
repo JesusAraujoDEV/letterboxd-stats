@@ -1,6 +1,17 @@
-import { useMemo, useState } from "react";
-import { User } from "lucide-react";
+import { useMemo, useRef, useState, type RefObject } from "react";
+import {
+  Clapperboard,
+  Copy,
+  Download,
+  Share,
+  Share2,
+  Star,
+  User,
+  Video,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import * as htmlToImage from "html-to-image";
+import Toast from "./Toast";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -110,15 +121,91 @@ const CastAndCrew = ({
   topDirectorsLogged,
 }: CastAndCrewProps) => {
   const navigate = useNavigate();
+  const actorsRef = useRef<HTMLDivElement>(null);
+  const directorsRef = useRef<HTMLDivElement>(null);
   const [actorView, setActorView] = useState<"allTime" | "logged">("allTime");
   const [directorView, setDirectorView] = useState<"allTime" | "logged">(
     "allTime"
   );
+  const [activeMenu, setActiveMenu] = useState<
+    "actors" | "directors" | null
+  >(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const actorData =
     actorView === "allTime" ? topActorsAllTime : topActorsLogged;
   const directorData =
     directorView === "allTime" ? topDirectorsAllTime : topDirectorsLogged;
+
+  const processExport = async (
+    ref: RefObject<HTMLDivElement>,
+    action: "share" | "copy" | "download",
+    filename: string
+  ) => {
+    if (!ref.current) {
+      setToastMessage("No se pudo generar la imagen.");
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      setActiveMenu(null);
+
+      const dataUrl = await htmlToImage.toPng(ref.current, {
+        cacheBust: true,
+        pixelRatio: 3,
+        backgroundColor: "#0d1117",
+      });
+
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `${filename}.png`, {
+        type: "image/png",
+      });
+
+      if (action === "share") {
+        const canShareFiles =
+          typeof navigator !== "undefined" &&
+          "canShare" in navigator &&
+          navigator.canShare?.({ files: [file] });
+
+        if (navigator.share && canShareFiles) {
+          await navigator.share({
+            files: [file],
+            title: "Statsboxd",
+          });
+          setToastMessage("Imagen compartida.");
+          return;
+        }
+      }
+
+      if (action === "copy") {
+        if (navigator.clipboard && "ClipboardItem" in window) {
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
+          setToastMessage("Imagen copiada al portapapeles.");
+          return;
+        }
+
+        setToastMessage("No se pudo copiar la imagen.");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${filename}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setToastMessage("Imagen descargada.");
+    } catch (error) {
+      setToastMessage("No se pudo exportar la imagen.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <section className="space-y-6">
@@ -132,7 +219,57 @@ const CastAndCrew = ({
               Más presentes en tu cine
             </p>
           </div>
-          <Toggle value={actorView} onChange={setActorView} />
+          <div className="relative flex items-center gap-2">
+            <Toggle value={actorView} onChange={setActorView} />
+            <button
+              type="button"
+              onClick={() =>
+                setActiveMenu((prev) => (prev === "actors" ? null : "actors"))
+              }
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
+              aria-label="Compartir top actores"
+              disabled={isExporting}
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+            {activeMenu === "actors" && (
+              <div className="absolute right-0 top-full z-20 mt-2 w-40 rounded-xl border border-border/60 bg-popover/95 p-2 shadow-lg backdrop-blur">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(actorsRef, "share", "top-actores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Share className="h-4 w-4" />
+                  Compartir
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(actorsRef, "copy", "top-actores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copiar
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(actorsRef, "download", "top-actores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
@@ -160,7 +297,59 @@ const CastAndCrew = ({
               Los que más repites
             </p>
           </div>
-          <Toggle value={directorView} onChange={setDirectorView} />
+          <div className="relative flex items-center gap-2">
+            <Toggle value={directorView} onChange={setDirectorView} />
+            <button
+              type="button"
+              onClick={() =>
+                setActiveMenu((prev) =>
+                  prev === "directors" ? null : "directors"
+                )
+              }
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
+              aria-label="Compartir top directores"
+              disabled={isExporting}
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+            {activeMenu === "directors" && (
+              <div className="absolute right-0 top-full z-20 mt-2 w-40 rounded-xl border border-border/60 bg-popover/95 p-2 shadow-lg backdrop-blur">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(directorsRef, "share", "top-directores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Share className="h-4 w-4" />
+                  Compartir
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(directorsRef, "copy", "top-directores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copiar
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
+                  onClick={() =>
+                    processExport(directorsRef, "download", "top-directores")
+                  }
+                  disabled={isExporting}
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
@@ -177,6 +366,115 @@ const CastAndCrew = ({
           ))}
         </div>
       </div>
+      <div className="absolute -left-[9999px] top-0">
+        <div
+          ref={actorsRef}
+          className="w-[520px] rounded-[32px] bg-gradient-to-br from-[#14181c] to-[#3a1a08] p-10 text-white"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <Star className="h-6 w-6 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-orange-200">Top Actores</p>
+              <h3 className="text-2xl font-heading font-semibold">
+                Mis Actores Más Vistos
+              </h3>
+              <p className="text-sm text-white/70">
+                {actorView === "allTime"
+                  ? "De todos los tiempos"
+                  : "Registrados recientemente"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-3 gap-5">
+            {(actorData ?? []).slice(0, 6).map((person) => (
+              <div key={`actor-story-${person.name}`} className="text-center">
+                {person.profilePath ? (
+                  <img
+                    src={`${TMDB_IMAGE_BASE_URL}${person.profilePath}`}
+                    alt={person.name}
+                    crossOrigin="anonymous"
+                    className="aspect-[2/3] w-full rounded-xl border border-white/10 object-cover shadow-lg"
+                  />
+                ) : (
+                  <div className="flex aspect-[2/3] w-full items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                    <User className="h-8 w-8 text-white/40" />
+                  </div>
+                )}
+                <p className="mt-2 truncate text-sm font-bold text-white">
+                  {person.name}
+                </p>
+                <span className="mx-auto mt-1 w-fit rounded-full bg-orange-500/10 px-2 py-1 text-xs font-bold text-orange-500">
+                  x{person.count} pelis
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-xs font-semibold text-white/70">
+            <Clapperboard className="h-4 w-4" />
+            Statsboxd.jesusaraujo.lat
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute -left-[9999px] top-0">
+        <div
+          ref={directorsRef}
+          className="w-[520px] rounded-[32px] bg-gradient-to-br from-[#14181c] to-[#3a1a08] p-10 text-white"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <Video className="h-6 w-6 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-orange-200">Top Directores</p>
+              <h3 className="text-2xl font-heading font-semibold">
+                Mis Directores de Cabecera
+              </h3>
+              <p className="text-sm text-white/70">
+                {directorView === "allTime"
+                  ? "De todos los tiempos"
+                  : "Registrados recientemente"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-3 gap-5">
+            {(directorData ?? []).slice(0, 6).map((person) => (
+              <div key={`director-story-${person.name}`} className="text-center">
+                {person.profilePath ? (
+                  <img
+                    src={`${TMDB_IMAGE_BASE_URL}${person.profilePath}`}
+                    alt={person.name}
+                    crossOrigin="anonymous"
+                    className="aspect-[2/3] w-full rounded-xl border border-white/10 object-cover shadow-lg"
+                  />
+                ) : (
+                  <div className="flex aspect-[2/3] w-full items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                    <User className="h-8 w-8 text-white/40" />
+                  </div>
+                )}
+                <p className="mt-2 truncate text-sm font-bold text-white">
+                  {person.name}
+                </p>
+                <span className="mx-auto mt-1 w-fit rounded-full bg-orange-500/10 px-2 py-1 text-xs font-bold text-orange-500">
+                  x{person.count} pelis
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-xs font-semibold text-white/70">
+            <Clapperboard className="h-4 w-4" />
+            Statsboxd.jesusaraujo.lat
+          </div>
+        </div>
+      </div>
+
+      <Toast message={toastMessage} />
     </section>
   );
 };
