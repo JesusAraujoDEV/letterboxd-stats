@@ -112,7 +112,9 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const [selectedYear, setSelectedYear] = useState(availableYears[0]);
   const heatmapRef = useRef<HTMLDivElement>(null);
   const weekdaysRef = useRef<HTMLDivElement>(null);
-  const [activeMenu, setActiveMenu] = useState<"heatmap" | "weekdays" | null>(null);
+  const weeksRef = useRef<HTMLDivElement>(null);
+  const monthsRef = useRef<HTMLDivElement>(null);
+  const [activeMenu, setActiveMenu] = useState<"heatmap" | "weekdays" | "weeks" | "months" | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (message: string) => {
@@ -175,6 +177,16 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
       daysData[0]
     );
   }, [daysData]);
+
+  const peakWeek = useMemo(() => {
+    if (!weeksData || weeksData.length === 0) return null;
+    return weeksData.reduce((acc, item) => (item.count > acc.count ? item : acc), weeksData[0]);
+  }, [weeksData]);
+
+  const peakMonth = useMemo(() => {
+    if (!monthsData || monthsData.length === 0) return null;
+    return monthsData.reduce((acc, item) => (item.count > acc.count ? item : acc), monthsData[0]);
+  }, [monthsData]);
 
   const heatmapPeak = useMemo(() => {
     const logsToUse = (globalLogs ?? []).filter((log) => {
@@ -536,9 +548,45 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
       </div>
 
       <div className="bg-card rounded-xl p-5 border border-border">
-        <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
-          Semanas del año
-        </h4>
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="text-sm font-heading font-semibold text-muted-foreground">
+            Semanas del año
+          </h4>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setActiveMenu(activeMenu === "weeks" ? null : "weeks")}
+              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              <Share2 className="h-4 w-4" /> Compartir
+            </button>
+            {activeMenu === "weeks" && (
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+                <button
+                  type="button"
+                  onClick={() => processExport(weeksRef, "share", "statsboxd-semanas.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => processExport(weeksRef, "copy", "statsboxd-semanas.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => processExport(weeksRef, "download", "statsboxd-semanas.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Download className="h-4 w-4 text-text-muted" /> Descargar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={weeksData} barCategoryGap="10%">
               <XAxis
@@ -576,9 +624,45 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
       </div>
 
       <div className="bg-card rounded-xl p-5 border border-border">
-        <h4 className="text-sm font-heading font-semibold text-muted-foreground mb-3">
-          Distribución por meses
-        </h4>
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="text-sm font-heading font-semibold text-muted-foreground">
+            Distribución por meses
+          </h4>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setActiveMenu(activeMenu === "months" ? null : "months")}
+              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              <Share2 className="h-4 w-4" /> Compartir
+            </button>
+            {activeMenu === "months" && (
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+                <button
+                  type="button"
+                  onClick={() => processExport(monthsRef, "share", "statsboxd-meses.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => processExport(monthsRef, "copy", "statsboxd-meses.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => processExport(monthsRef, "download", "statsboxd-meses.png")}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Download className="h-4 w-4 text-text-muted" /> Descargar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={monthsData} barCategoryGap="20%">
             <XAxis
@@ -798,6 +882,102 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
             <span className="text-lg font-semibold tracking-wide text-white/80">
               Statsboxd.jesusaraujo.lat
             </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute -left-[9999px] top-0">
+        <div
+          ref={weeksRef}
+          className="flex w-[500px] flex-col justify-between rounded-[2.5rem] p-10 shadow-2xl"
+          style={{ background: "linear-gradient(160deg, #0d1117 0%, #111827 50%, #0b1220 100%)" }}
+        >
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <BarChart3 className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-white">Mis Semanas de Cine en {heatmapYearLabel}</h2>
+              <p className="text-sm font-semibold text-white/60">Resumen por semana</p>
+            </div>
+          </div>
+
+          <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                <Trophy className="h-5 w-5 text-yellow-300" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
+                  {peakWeek ? `Semana Récord: ${peakWeek.week}` : "Semana Récord"}
+                </p>
+                <p className="text-2xl font-bold text-white">{peakWeek ? `${peakWeek.count} películas` : "-"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 flex justify-center">
+            <BarChart width={400} height={200} data={weeksData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <XAxis dataKey="week" tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }} axisLine={false} tickLine={false} interval={'preserveStartEnd'} />
+              <YAxis tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Bar dataKey="count" radius={[6,6,0,0]}>
+                {weeksData.map((entry) => (
+                  <Cell key={`week-export-${entry.week}`} fill={entry.count === peakWeek?.count ? '#f97316' : '#4b5563'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </div>
+
+          <div className="mt-2 flex items-center justify-center gap-3 border-t border-white/10 pt-6">
+            <span className="text-lg font-semibold tracking-wide text-white/80">Statsboxd.jesusaraujo.lat</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute -left-[9999px] top-0">
+        <div
+          ref={monthsRef}
+          className="flex w-[500px] flex-col justify-between rounded-[2.5rem] p-10 shadow-2xl"
+          style={{ background: "linear-gradient(160deg, #0d1117 0%, #111827 50%, #0b1220 100%)" }}
+        >
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <CalendarDays className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-white">Mis Meses de Cine en {heatmapYearLabel}</h2>
+              <p className="text-sm font-semibold text-white/60">Resumen por mes</p>
+            </div>
+          </div>
+
+          <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                <CalendarDays className="h-5 w-5 text-green-300" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
+                  {peakMonth ? `Mes Récord: ${peakMonth.month}` : "Mes Récord"}
+                </p>
+                <p className="text-2xl font-bold text-white">{peakMonth ? `${peakMonth.count} películas` : "-"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 flex justify-center">
+            <BarChart width={400} height={200} data={monthsData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <XAxis dataKey="month" tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => String(v).slice(0,3)} />
+              <YAxis tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Bar dataKey="count" radius={[6,6,0,0]}>
+                {monthsData.map((entry) => (
+                  <Cell key={`month-export-${entry.month}`} fill={entry.count === peakMonth?.count ? '#f97316' : '#4b5563'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </div>
+
+          <div className="mt-2 flex items-center justify-center gap-3 border-t border-white/10 pt-6">
+            <span className="text-lg font-semibold tracking-wide text-white/80">Statsboxd.jesusaraujo.lat</span>
           </div>
         </div>
       </div>
