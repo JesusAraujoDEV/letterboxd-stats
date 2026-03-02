@@ -49,9 +49,6 @@ const WatchedYearActivityChart = ({ watchedYearStats }: WatchedYearActivityChart
         <h3 className="text-lg font-heading font-semibold text-foreground">
           Tu Actividad Anual
         </h3>
-        <span className="text-xs text-muted-foreground">
-          Clic para explorar el año
-        </span>
       </div>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart
