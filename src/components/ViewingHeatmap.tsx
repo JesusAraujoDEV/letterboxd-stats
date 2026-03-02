@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import type { ReactNode } from "react";
 import type { MovieDiaryLog } from "@/types/stats";
 
 interface ViewingHeatmapProps {
   logs: MovieDiaryLog[];
   selectedYear: string;
+  headerActions?: ReactNode;
 }
 
 interface CalendarDay {
@@ -31,7 +33,7 @@ const getColorClass = (count: number) => {
   return "bg-[#00E054]";
 };
 
-const ViewingHeatmap = ({ logs, selectedYear }: ViewingHeatmapProps) => {
+const ViewingHeatmap = ({ logs, selectedYear, headerActions }: ViewingHeatmapProps) => {
   const calendarGrid = useMemo(() => {
     if (selectedYear === "Total") return [] as CalendarDay[];
 
@@ -107,15 +109,18 @@ const ViewingHeatmap = ({ logs, selectedYear }: ViewingHeatmapProps) => {
 
   return (
     <div className="rounded-2xl border border-border bg-background-card p-6 mt-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-heading font-semibold text-text-main">
-          Mapa de Actividad Anual
-        </h3>
-        <p className="text-sm text-text-muted">
-          {selectedYear === "Total"
-            ? "Selecciona un año específico arriba para ver el mapa."
-            : `Películas vistas por día en ${selectedYear}`}
-        </p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-lg font-heading font-semibold text-text-main">
+            Mapa de Actividad Anual
+          </h3>
+          <p className="text-sm text-text-muted">
+            {selectedYear === "Total"
+              ? "Selecciona un año específico arriba para ver el mapa."
+              : `Películas vistas por día en ${selectedYear}`}
+          </p>
+        </div>
+        {headerActions ? <div className="relative">{headerActions}</div> : null}
       </div>
       {selectedYear !== "Total" && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-8 pt-2">
