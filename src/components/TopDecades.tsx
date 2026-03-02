@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star } from "lucide-react";
+import * as htmlToImage from "html-to-image";
+import { Star, Share2, Download, Copy, Share, Clapperboard, Hourglass } from "lucide-react";
 import type { TopDecade, TopDecadeMovie } from "@/types/stats";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+const TMDB_IMAGE_BASE_URL_W200 = "https://image.tmdb.org/t/p/w200";
 
 interface TopDecadesProps {
   topDecades: TopDecade[];
@@ -74,70 +76,231 @@ const PosterCard = ({ movie }: { movie: TopDecadeMovie }) => {
 
 const TopDecades = ({ topDecades }: TopDecadesProps) => {
   const navigate = useNavigate();
+  const exportRef = useRef<HTMLDivElement | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const generateImageBlob = async () => {
+    if (!exportRef.current) return null;
+    try {
+      const dataUrl = await htmlToImage.toPng(exportRef.current, {
+        pixelRatio: 3,
+        backgroundColor: "#0d1117",
+      });
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      return { blob, dataUrl };
+    } catch (err) {
+      console.error(err);
+      showToast("Error generando imagen");
+      return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    setShowMenu(false);
+    setIsExporting(true);
+    const data = await generateImageBlob();
+    setIsExporting(false);
+    if (!data) return;
+    const url = URL.createObjectURL(data.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `top-decades.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("Imagen descargada");
+  };
+
+  const handleCopy = async () => {
+    setShowMenu(false);
+    setIsExporting(true);
+    const data = await generateImageBlob();
+    setIsExporting(false);
+    if (!data) return;
+    try {
+      // @ts-ignore
+      await navigator.clipboard.write([new ClipboardItem({ [data.blob.type]: data.blob })]);
+      showToast("Imagen copiada al portapapeles");
+    } catch (err) {
+      console.error(err);
+      showToast("No se pudo copiar la imagen");
+    }
+  };
+
+  const handleShare = async () => {
+    setShowMenu(false);
+    setIsExporting(true);
+    const data = await generateImageBlob();
+    setIsExporting(false);
+    if (!data) return;
+    try {
+      const file = new File([data.blob], "top-decades.png", { type: data.blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        // @ts-ignore
+        await navigator.share({ files: [file], title: "Mis Décadas Favoritas" });
+        showToast("Compartido");
+      } else if (navigator.share) {
+        await navigator.share({ title: "Mis Décadas Favoritas", text: "Mis Décadas Favoritas" });
+        showToast("Compartido");
+      } else {
+        showToast("Compartir no soportado en este navegador");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error al compartir");
+    }
+  };
+
   if (!topDecades || topDecades.length === 0) return null;
 
   return (
-    <section className="rounded-2xl border border-border bg-card/60 p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-heading font-semibold text-foreground">
-            Top Décadas del Usuario
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Las 3 épocas donde más brillas
-          </p>
+    <>
+      <section className="rounded-2xl border border-border bg-card/60 p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-heading font-semibold text-foreground">Top Décadas del Usuario</h3>
+            <p className="text-sm text-muted-foreground">Las 3 épocas donde más brillas</p>
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowMenu(!showMenu)}
+              disabled={isExporting}
+              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+            >
+              <Share2 className="h-4 w-4" />
+              {isExporting ? "Generando..." : "Compartir"}
+            </button>
+            {showMenu && !isExporting && (
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
+                >
+                  <Download className="h-4 w-4 text-text-muted" /> Descargar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {topDecades?.slice(0, 3)?.map((decade, index) => (
+            <div
+              key={`${decade?.decade ?? "decade"}-${index}`}
+              className="grid gap-6 rounded-2xl border border-border/60 bg-[#0f1418] p-5 md:grid-cols-[minmax(0,240px)_1fr]"
+            >
+              <div className="flex flex-col justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Década</p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(`/explore?decade=${encodeURIComponent(decade?.decade ?? "")}`, { state: { fromHash: "#decadas" } })
+                    }
+                    className="mt-2 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 cursor-pointer"
+                  >
+                    {decade?.decade ?? ""}
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Average</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-heading font-bold text-foreground">
+                      {Number((decade as { average?: number | null })?.average ?? decade?.averageRating ?? 0).toFixed(2)}
+                    </span>
+                    <span className="text-sm text-amber-300">★</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2">
+                {(decade?.movies ?? (decade as { topMovies?: TopDecadeMovie[] | null })?.topMovies ?? [])
+                  ?.slice(0, 8)
+                  ?.map((movie, movieIndex) => (
+                    <PosterCard
+                      key={`${decade?.decade ?? "decade"}-${movie?.title ?? "movie"}-${movieIndex}`}
+                      movie={movie}
+                    />
+                  ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Off-screen export card for IG Story */}
+      <div className="absolute -left-[9999px] top-0" aria-hidden>
+        <div ref={exportRef} className="w-[500px] rounded-2xl p-10" style={{ background: "linear-gradient(135deg,#0b0f12 0%, #1f1238 100%)" }}>
+          <div className="mb-6 flex items-center gap-3">
+            <Hourglass className="h-6 w-6 text-white/80" />
+            <h2 className="font-serif text-2xl font-semibold text-white">Mis Décadas Favoritas</h2>
+          </div>
+
+          <div>
+            {topDecades?.slice(0, 3)?.map((decade, idx) => (
+              <div key={`export-${idx}`} className="mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/3 p-4">
+                <div>
+                  <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-500">
+                    {decade?.decade ?? ""}
+                  </div>
+                  <div className="mt-1 text-sm text-white/80">⭐ {(Number((decade as { average?: number | null })?.average ?? decade?.averageRating ?? 0)).toFixed(2)} Promedio</div>
+                </div>
+
+                <div className="flex -space-x-4">
+                  {(decade?.movies ?? [])
+                    ?.slice(0, 3)
+                    ?.map((m, mi) => (
+                      <img
+                        key={`p-${idx}-${mi}`}
+                        src={m?.posterPath ? `${TMDB_IMAGE_BASE_URL_W200}${m.posterPath}` : ""}
+                        alt={m?.title ?? "Poster"}
+                        crossOrigin="anonymous"
+                        className="w-16 rounded-md object-cover"
+                      />
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-white/60">
+            <Clapperboard className="h-4 w-4" />
+            <span>Statsboxd.jesusaraujo.lat</span>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {topDecades?.slice(0, 3)?.map((decade, index) => (
-          <div
-            key={`${decade?.decade ?? "decade"}-${index}`}
-            className="grid gap-6 rounded-2xl border border-border/60 bg-[#0f1418] p-5 md:grid-cols-[minmax(0,240px)_1fr]"
-          >
-            <div className="flex flex-col justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  Década
-                </p>
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      `/explore?decade=${encodeURIComponent(decade?.decade ?? "")}`,
-                      { state: { fromHash: "#decadas" } }
-                    )
-                  }
-                  className="mt-2 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 cursor-pointer"
-                >
-                  {decade?.decade ?? ""}
-                </button>
-              </div>
-              <div className="mt-4">
-                <p className="text-sm text-muted-foreground">Average</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-heading font-bold text-foreground">
-                    {Number((decade as { average?: number | null })?.average ?? decade?.averageRating ?? 0).toFixed(2)}
-                  </span>
-                  <span className="text-sm text-amber-300">★</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {(decade?.movies ?? (decade as { topMovies?: TopDecadeMovie[] | null })?.topMovies ?? [])
-                ?.slice(0, 8)
-                ?.map((movie, movieIndex) => (
-                  <PosterCard
-                    key={`${decade?.decade ?? "decade"}-${movie?.title ?? "movie"}-${movieIndex}`}
-                    movie={movie}
-                  />
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+      {/* Toast */}
+      {toastMessage && (
+        <div className="fixed right-6 top-6 z-50 rounded-md bg-white/6 px-4 py-2 text-sm text-white/90">{toastMessage}</div>
+      )}
+    </>
   );
 };
 
