@@ -1,13 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type RefObject } from "react";
 import * as htmlToImage from "html-to-image";
 import {
   BarChart3,
   CalendarDays,
   Clapperboard,
-  Copy,
-  Download,
-  Share,
-  Share2,
   Trophy,
 } from "lucide-react";
 import {
@@ -23,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useMovies } from "@/context/MoviesContext";
 import ViewingHeatmap from "./ViewingHeatmap";
 import Toast from "./Toast";
+import ShareMenu from "./ShareMenu";
 
 interface ActivityStatsYearData {
   days: { day: string; count: number }[];
@@ -115,7 +112,7 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   const weekdaysRef = useRef<HTMLDivElement>(null);
   const weeksRef = useRef<HTMLDivElement>(null);
   const monthsRef = useRef<HTMLDivElement>(null);
-  const [activeMenu, setActiveMenu] = useState<"heatmap" | "weekdays" | "weeks" | "months" | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (message: string) => {
@@ -303,13 +300,13 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
   }, [heatmapGrid, selectedYear]);
 
   const processExport = async (
-    ref: React.RefObject<HTMLDivElement>,
+    ref: RefObject<HTMLDivElement>,
     action: "share" | "copy" | "download",
     filename: string
   ) => {
     if (!ref.current) return;
-    setActiveMenu(null);
     showToast("Generando...");
+    setIsExporting(true);
     try {
       const dataUrl = await htmlToImage.toPng(ref.current, {
         quality: 1,
@@ -357,6 +354,8 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
     } catch (error) {
       console.error("Error generando imagen", error);
       showToast("Error al generar imagen");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -407,48 +406,14 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
         logs={globalLogs}
         selectedYear={selectedYear}
         headerActions={
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() =>
-                setActiveMenu(activeMenu === "heatmap" ? null : "heatmap")
-              }
-              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-            >
-              <Share2 className="h-4 w-4" /> Compartir
-            </button>
-            {activeMenu === "heatmap" && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(heatmapRef, "share", "statsboxd-mapa.png")
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(heatmapRef, "copy", "statsboxd-mapa.png")
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(heatmapRef, "download", "statsboxd-mapa.png")
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-text-muted" /> Descargar
-                </button>
-              </div>
-            )}
-          </div>
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={() => processExport(heatmapRef, "share", "statsboxd-mapa.png")}
+            onCopy={() => processExport(heatmapRef, "copy", "statsboxd-mapa.png")}
+            onDownload={() =>
+              processExport(heatmapRef, "download", "statsboxd-mapa.png")
+            }
+          />
         }
       />
 
@@ -457,60 +422,22 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           <h4 className="text-sm font-heading font-semibold text-muted-foreground">
             Días de la semana
           </h4>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() =>
-                setActiveMenu(activeMenu === "weekdays" ? null : "weekdays")
-              }
-              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-            >
-              <Share2 className="h-4 w-4" /> Compartir
-            </button>
-            {activeMenu === "weekdays" && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(
-                      weekdaysRef,
-                      "share",
-                      "statsboxd-dias-semana.png"
-                    )
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(
-                      weekdaysRef,
-                      "copy",
-                      "statsboxd-dias-semana.png"
-                    )
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    processExport(
-                      weekdaysRef,
-                      "download",
-                      "statsboxd-dias-semana.png"
-                    )
-                  }
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-text-muted" /> Descargar
-                </button>
-              </div>
-            )}
-          </div>
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={() =>
+              processExport(weekdaysRef, "share", "statsboxd-dias-semana.png")
+            }
+            onCopy={() =>
+              processExport(weekdaysRef, "copy", "statsboxd-dias-semana.png")
+            }
+            onDownload={() =>
+              processExport(
+                weekdaysRef,
+                "download",
+                "statsboxd-dias-semana.png"
+              )
+            }
+          />
         </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={daysData} barCategoryGap="20%">
@@ -553,40 +480,18 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           <h4 className="text-sm font-heading font-semibold text-muted-foreground">
             Semanas del año
           </h4>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setActiveMenu(activeMenu === "weeks" ? null : "weeks")}
-              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-            >
-              <Share2 className="h-4 w-4" /> Compartir
-            </button>
-            {activeMenu === "weeks" && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-                <button
-                  type="button"
-                  onClick={() => processExport(weeksRef, "share", "statsboxd-semanas.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => processExport(weeksRef, "copy", "statsboxd-semanas.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={() => processExport(weeksRef, "download", "statsboxd-semanas.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-text-muted" /> Descargar
-                </button>
-              </div>
-            )}
-          </div>
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={() =>
+              processExport(weeksRef, "share", "statsboxd-semanas.png")
+            }
+            onCopy={() =>
+              processExport(weeksRef, "copy", "statsboxd-semanas.png")
+            }
+            onDownload={() =>
+              processExport(weeksRef, "download", "statsboxd-semanas.png")
+            }
+          />
         </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={weeksData} barCategoryGap="10%">
@@ -629,40 +534,18 @@ const ViewingHabits = ({ activityStats }: ViewingHabitsProps) => {
           <h4 className="text-sm font-heading font-semibold text-muted-foreground">
             Distribución por meses
           </h4>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setActiveMenu(activeMenu === "months" ? null : "months")}
-              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-            >
-              <Share2 className="h-4 w-4" /> Compartir
-            </button>
-            {activeMenu === "months" && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-                <button
-                  type="button"
-                  onClick={() => processExport(monthsRef, "share", "statsboxd-meses.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => processExport(monthsRef, "copy", "statsboxd-meses.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={() => processExport(monthsRef, "download", "statsboxd-meses.png")}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-text-muted" /> Descargar
-                </button>
-              </div>
-            )}
-          </div>
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={() =>
+              processExport(monthsRef, "share", "statsboxd-meses.png")
+            }
+            onCopy={() =>
+              processExport(monthsRef, "copy", "statsboxd-meses.png")
+            }
+            onDownload={() =>
+              processExport(monthsRef, "download", "statsboxd-meses.png")
+            }
+          />
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={monthsData} barCategoryGap="20%">

@@ -1,10 +1,6 @@
 import { useMemo, useRef, useState, type RefObject } from "react";
 import {
   Clapperboard,
-  Copy,
-  Download,
-  Share,
-  Share2,
   Star,
   User,
   Video,
@@ -12,6 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
 import Toast from "./Toast";
+import ShareMenu from "./ShareMenu";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -127,9 +124,6 @@ const CastAndCrew = ({
   const [directorView, setDirectorView] = useState<"allTime" | "logged">(
     "allTime"
   );
-  const [activeMenu, setActiveMenu] = useState<
-    "actors" | "directors" | null
-  >(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -150,7 +144,6 @@ const CastAndCrew = ({
 
     try {
       setIsExporting(true);
-      setActiveMenu(null);
 
       const dataUrl = await htmlToImage.toPng(ref.current, {
         cacheBust: true,
@@ -219,56 +212,16 @@ const CastAndCrew = ({
               Más presentes en tu cine
             </p>
           </div>
-          <div className="relative flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Toggle value={actorView} onChange={setActorView} />
-            <button
-              type="button"
-              onClick={() =>
-                setActiveMenu((prev) => (prev === "actors" ? null : "actors"))
+            <ShareMenu
+              isExporting={isExporting}
+              onShare={() => processExport(actorsRef, "share", "top-actores")}
+              onCopy={() => processExport(actorsRef, "copy", "top-actores")}
+              onDownload={() =>
+                processExport(actorsRef, "download", "top-actores")
               }
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
-              aria-label="Compartir top actores"
-              disabled={isExporting}
-            >
-              <Share2 className="h-4 w-4" />
-            </button>
-            {activeMenu === "actors" && (
-              <div className="absolute right-0 top-full z-20 mt-2 w-40 rounded-xl border border-border/60 bg-popover/95 p-2 shadow-lg backdrop-blur">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(actorsRef, "share", "top-actores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Share className="h-4 w-4" />
-                  Compartir
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(actorsRef, "copy", "top-actores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Copy className="h-4 w-4" />
-                  Copiar
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(actorsRef, "download", "top-actores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Download className="h-4 w-4" />
-                  Descargar
-                </button>
-              </div>
-            )}
+            />
           </div>
         </div>
 
@@ -297,58 +250,20 @@ const CastAndCrew = ({
               Los que más repites
             </p>
           </div>
-          <div className="relative flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Toggle value={directorView} onChange={setDirectorView} />
-            <button
-              type="button"
-              onClick={() =>
-                setActiveMenu((prev) =>
-                  prev === "directors" ? null : "directors"
-                )
+            <ShareMenu
+              isExporting={isExporting}
+              onShare={() =>
+                processExport(directorsRef, "share", "top-directores")
               }
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
-              aria-label="Compartir top directores"
-              disabled={isExporting}
-            >
-              <Share2 className="h-4 w-4" />
-            </button>
-            {activeMenu === "directors" && (
-              <div className="absolute right-0 top-full z-20 mt-2 w-40 rounded-xl border border-border/60 bg-popover/95 p-2 shadow-lg backdrop-blur">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(directorsRef, "share", "top-directores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Share className="h-4 w-4" />
-                  Compartir
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(directorsRef, "copy", "top-directores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Copy className="h-4 w-4" />
-                  Copiar
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-accent"
-                  onClick={() =>
-                    processExport(directorsRef, "download", "top-directores")
-                  }
-                  disabled={isExporting}
-                >
-                  <Download className="h-4 w-4" />
-                  Descargar
-                </button>
-              </div>
-            )}
+              onCopy={() =>
+                processExport(directorsRef, "copy", "top-directores")
+              }
+              onDownload={() =>
+                processExport(directorsRef, "download", "top-directores")
+              }
+            />
           </div>
         </div>
 

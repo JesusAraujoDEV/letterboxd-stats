@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
-import { Star, Share2, Download, Copy, Share, Clapperboard, Hourglass } from "lucide-react";
+import { Star, Clapperboard, Hourglass } from "lucide-react";
 import type { TopDecade, TopDecadeMovie } from "@/types/stats";
 import Toast from "./Toast";
+import ShareMenu from "./ShareMenu";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 const TMDB_IMAGE_BASE_URL_W200 = "https://image.tmdb.org/t/p/w200";
@@ -79,7 +80,6 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
   const navigate = useNavigate();
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -105,7 +105,6 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
   };
 
   const handleDownload = async () => {
-    setShowMenu(false);
     setIsExporting(true);
     const data = await generateImageBlob();
     setIsExporting(false);
@@ -122,7 +121,6 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
   };
 
   const handleCopy = async () => {
-    setShowMenu(false);
     setIsExporting(true);
     const data = await generateImageBlob();
     setIsExporting(false);
@@ -138,7 +136,6 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
   };
 
   const handleShare = async () => {
-    setShowMenu(false);
     setIsExporting(true);
     const data = await generateImageBlob();
     setIsExporting(false);
@@ -172,42 +169,12 @@ const TopDecades = ({ topDecades }: TopDecadesProps) => {
             <p className="text-sm text-muted-foreground">Las 3 épocas donde más brillas</p>
           </div>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowMenu(!showMenu)}
-              disabled={isExporting}
-              className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
-            >
-              <Share2 className="h-4 w-4" />
-              {isExporting ? "Generando..." : "Compartir"}
-            </button>
-            {showMenu && !isExporting && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Share className="h-4 w-4 text-text-muted" /> Compartir (App)
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Copy className="h-4 w-4 text-text-muted" /> Copiar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-text-muted" /> Descargar
-                </button>
-              </div>
-            )}
-          </div>
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={handleShare}
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+          />
         </div>
 
         <div className="space-y-6">

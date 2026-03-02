@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as htmlToImage from "html-to-image";
-import { Share2, Download, Copy, Share, Clapperboard, Star, Flame, Film, BookOpen, Bookmark, PenTool, MessageSquare, Clock } from "lucide-react";
+import { Clapperboard, Star, Flame, Film, BookOpen, Bookmark, PenTool, MessageSquare, Clock } from "lucide-react";
 import RatingChart from "./RatingChart";
 import TopYearsChart from "./TopYearsChart";
 import TagCloud from "./TagCloud";
@@ -18,6 +18,7 @@ import ViewingHabits from "./ViewingHabits";
 import TopInteractions from "./TopInteractions";
 import type { MovieStats } from "@/types/stats";
 import Toast from "./Toast";
+import ShareMenu from "./ShareMenu";
 
 interface DashboardProps {
   data: MovieStats;
@@ -26,7 +27,6 @@ interface DashboardProps {
 function StatsOverviewExport({ data }: { data: MovieStats }) {
   const exportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (message: string) => {
@@ -51,7 +51,6 @@ function StatsOverviewExport({ data }: { data: MovieStats }) {
       return null;
     } finally {
       setIsExporting(false);
-      setShowMenu(false);
     }
   }
 
@@ -105,16 +104,12 @@ function StatsOverviewExport({ data }: { data: MovieStats }) {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-heading font-bold text-text-main">Tu Resumen</h2>
         <div className="relative z-10">
-          <button onClick={() => setShowMenu(!showMenu)} disabled={isExporting} className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50">
-            <Share2 className="h-4 w-4" /> {isExporting ? "Generando..." : "Compartir"}
-          </button>
-          {showMenu && !isExporting && (
-            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-              <button onClick={handleShare} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Share className="h-4 w-4 text-text-muted" /> Compartir (App)</button>
-              <button onClick={handleCopy} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Copy className="h-4 w-4 text-text-muted" /> Copiar imagen</button>
-              <button onClick={handleDownload} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Download className="h-4 w-4 text-text-muted" /> Descargar</button>
-            </div>
-          )}
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={handleShare}
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+          />
         </div>
       </div>
 

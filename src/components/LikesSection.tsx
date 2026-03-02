@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import * as htmlToImage from "html-to-image";
-import { Film, Heart, List, ThumbsUp, Share2, Download, Copy, Share, Medal, Clapperboard } from "lucide-react";
+import { Film, Heart, List, ThumbsUp, Medal, Clapperboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Toast from "./Toast";
+import ShareMenu from "./ShareMenu";
 
 interface LikesSectionProps {
   totalMovies: number;
@@ -24,7 +25,6 @@ const LikesSection = ({
   const navigate = useNavigate();
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const lovePercent = totalMovies
     ? Math.round((totalLikedFilms / totalMovies) * 100)
@@ -80,7 +80,6 @@ const LikesSection = ({
       return null;
     } finally {
       setIsExporting(false);
-      setShowMenu(false);
     }
   }
 
@@ -146,22 +145,13 @@ const LikesSection = ({
             </span>
           </div>
         </div>
-        <div className="relative mt-3 sm:mt-0">
-          <button
-            type="button"
-            onClick={() => setShowMenu(!showMenu)}
-            disabled={isExporting}
-            className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
-          >
-            <Share2 className="h-4 w-4" /> {isExporting ? "Generando..." : "Compartir"}
-          </button>
-          {showMenu && !isExporting && (
-            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-background p-2 shadow-2xl z-50">
-              <button onClick={handleShare} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Share className="h-4 w-4 text-text-muted" /> Compartir (App)</button>
-              <button onClick={handleCopy} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Copy className="h-4 w-4 text-text-muted" /> Copiar imagen</button>
-              <button onClick={handleDownload} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-text-main hover:bg-white/10 transition-colors"><Download className="h-4 w-4 text-text-muted" /> Descargar</button>
-            </div>
-          )}
+        <div className="mt-3 sm:mt-0">
+          <ShareMenu
+            isExporting={isExporting}
+            onShare={handleShare}
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+          />
         </div>
       </div>
 
