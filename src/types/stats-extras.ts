@@ -78,3 +78,31 @@ export interface CustomList {
   description: string;
   filmCount: number;
 }
+
+export interface WatchYearBreakdown {
+  watchYear: string;
+  topReleaseYears: { releaseYear: string; count: number }[];
+}
+
+export interface WatchAgeGapEntry {
+  watchYear: string;
+  averageAgeYears: number;
+}
+
+export interface DominantDecadeEntry {
+  watchYear: string;
+  dominantDecade: string;
+  count: number;
+  percentage: number;
+}
+
+export interface PremiereChaserEntry {
+  watchYear: string;
+  premieresWatched: number;
+  percentage: number;
+}
+
+export interface RatingStreaks {
+  longestHighRatedStreak: number;
+  longestLowRatedStreak: number;
+}

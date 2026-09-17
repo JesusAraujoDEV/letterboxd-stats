@@ -10,6 +10,11 @@ import type {
   CustomList,
   FranchiseStat,
   StudioStat,
+  WatchYearBreakdown,
+  WatchAgeGapEntry,
+  DominantDecadeEntry,
+  PremiereChaserEntry,
+  RatingStreaks,
 } from "./stats-extras";
 
 export interface MovieStats {
@@ -66,6 +71,11 @@ export interface MovieStats {
   favoriteFilms?: FavoriteFilm[];
   customLists?: CustomList[];
   daysActive?: number | null;
+  watchYearBreakdown?: WatchYearBreakdown[];
+  watchAgeGapStats?: WatchAgeGapEntry[];
+  dominantDecadeByWatchYear?: DominantDecadeEntry[];
+  premiereChaserStats?: PremiereChaserEntry[];
+  ratingStreaks?: RatingStreaks;
 }
 
 export interface InteractedUser {

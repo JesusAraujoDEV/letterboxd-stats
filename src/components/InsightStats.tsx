@@ -1,11 +1,12 @@
-import { Repeat, PenLine, Scale, CalendarDays } from "lucide-react";
-import type { RewatchStats, ReviewTextStats, RatingComparison } from "@/types/stats-extras";
+import { Repeat, PenLine, Scale, CalendarDays, Flame } from "lucide-react";
+import type { RewatchStats, ReviewTextStats, RatingComparison, RatingStreaks } from "@/types/stats-extras";
 
 interface InsightStatsProps {
   rewatchStats?: RewatchStats;
   reviewTextStats?: ReviewTextStats;
   ratingComparison?: RatingComparison | null;
   daysActive?: number | null;
+  ratingStreaks?: RatingStreaks;
 }
 
 const Card = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
@@ -18,7 +19,13 @@ const Card = ({ icon, title, children }: { icon: React.ReactNode; title: string;
   </div>
 );
 
-const InsightStats = ({ rewatchStats, reviewTextStats, ratingComparison, daysActive }: InsightStatsProps) => (
+const InsightStats = ({
+  rewatchStats,
+  reviewTextStats,
+  ratingComparison,
+  daysActive,
+  ratingStreaks,
+}: InsightStatsProps) => (
   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
     {rewatchStats && (
       <Card icon={<Repeat className="h-4 w-4 text-emerald-500" />} title="Rewatches">
@@ -49,6 +56,14 @@ const InsightStats = ({ rewatchStats, reviewTextStats, ratingComparison, daysAct
       <Card icon={<CalendarDays className="h-4 w-4 text-indigo-500" />} title="En Letterboxd">
         <p className="text-2xl font-bold text-text-main">{daysActive}</p>
         <p className="text-xs text-text-muted">días desde que te uniste</p>
+      </Card>
+    )}
+    {ratingStreaks && (
+      <Card icon={<Flame className="h-4 w-4 text-orange-500" />} title="Racha de calificaciones">
+        <p className="text-2xl font-bold text-text-main">{ratingStreaks.longestHighRatedStreak}</p>
+        <p className="text-xs text-text-muted">
+          seguidas con 4+★ · peor racha: {ratingStreaks.longestLowRatedStreak} con 2-★
+        </p>
       </Card>
     )}
   </div>

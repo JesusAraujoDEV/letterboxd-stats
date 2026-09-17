@@ -16,6 +16,7 @@ import TopInteractions from "./TopInteractions";
 import StatsOverview from "./StatsOverview";
 import InsightStats from "./InsightStats";
 import MovieExtremes from "./MovieExtremes";
+import WatchYearBreakdown from "./WatchYearBreakdown";
 import FranchiseAndStudios from "./FranchiseAndStudios";
 import type { MovieStats } from "@/types/stats";
 import { useScrollspy } from "@/hooks/use-scrollspy";
@@ -35,12 +36,7 @@ const Dashboard = ({ data }: DashboardProps) => {
 
       <section id="resumen" data-scrollspy="true" className="space-y-6">
         <StatsOverview data={data} />
-        <InsightStats
-          rewatchStats={data.rewatchStats}
-          reviewTextStats={data.reviewTextStats}
-          ratingComparison={data.ratingComparison}
-          daysActive={data.daysActive}
-        />
+        <InsightStats {...data} />
       </section>
 
       <section id="evolucion" data-scrollspy="true">
@@ -50,6 +46,7 @@ const Dashboard = ({ data }: DashboardProps) => {
             averageRatingByReleaseYear={data.averageRatingByReleaseYear}
           />
           <WatchedYearActivityChart watchedYearStats={data.watchedYearStats ?? []} />
+          <WatchYearBreakdown {...data} />
         </div>
       </section>
 
@@ -77,12 +74,7 @@ const Dashboard = ({ data }: DashboardProps) => {
       </section>
 
       <section id="extremos" data-scrollspy="true">
-        <MovieExtremes
-          ratingExtremes={data.ratingExtremes}
-          runtimeExtremes={data.runtimeExtremes}
-          watchSpan={data.watchSpan}
-          favoriteFilms={data.favoriteFilms}
-        />
+        <MovieExtremes {...data} />
       </section>
 
       <section id="gustos-globales" data-scrollspy="true">
@@ -94,12 +86,7 @@ const Dashboard = ({ data }: DashboardProps) => {
       </section>
 
       <section id="sagas-estudios" data-scrollspy="true">
-        <FranchiseAndStudios
-          franchiseStats={data.franchiseStats}
-          studioStats={data.studioStats}
-          industryTotals={data.industryTotals}
-          customLists={data.customLists}
-        />
+        <FranchiseAndStudios {...data} />
       </section>
 
       <section id="mapa" data-scrollspy="true">
