@@ -34,14 +34,32 @@ export interface RuntimeExtremes {
   shortest: RuntimeMovieExtreme;
 }
 
+export interface WatchSpanEntry {
+  title: string;
+  date: string;
+  posterPath: string | null;
+}
+
 export interface WatchSpan {
-  first: { title: string; date: string };
-  last: { title: string; date: string };
+  first: WatchSpanEntry;
+  last: WatchSpanEntry;
 }
 
 export interface IndustryTotals {
   totalBudget: number;
   totalRevenue: number;
+}
+
+export interface FranchiseStat {
+  name: string;
+  count: number;
+  posterPath: string | null;
+}
+
+export interface StudioStat {
+  name: string;
+  count: number;
+  logoPath: string | null;
 }
 
 export interface RatingComparison {

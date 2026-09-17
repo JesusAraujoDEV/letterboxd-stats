@@ -8,6 +8,8 @@ import type {
   RatingComparison,
   FavoriteFilm,
   CustomList,
+  FranchiseStat,
+  StudioStat,
 } from "./stats-extras";
 
 export interface MovieStats {
@@ -57,8 +59,8 @@ export interface MovieStats {
   ratingExtremes?: RatingExtremes;
   runtimeExtremes?: RuntimeExtremes | null;
   watchSpan?: WatchSpan | null;
-  franchiseStats?: TasteItem[];
-  studioStats?: TasteItem[];
+  franchiseStats?: FranchiseStat[];
+  studioStats?: StudioStat[];
   industryTotals?: IndustryTotals;
   ratingComparison?: RatingComparison | null;
   favoriteFilms?: FavoriteFilm[];
@@ -143,9 +145,9 @@ export interface MovieItem {
   watchedYear?: number | string | null;
   tags?: string[];
   diaryLogs?: MovieDiaryLog[];
-  collection?: string | null;
+  collection?: { name: string; posterPath: string | null } | null;
   budget?: number | null;
   revenue?: number | null;
   voteAverage?: number | null;
-  studios?: string[];
+  studios?: { name: string; logoPath: string | null }[];
 }
