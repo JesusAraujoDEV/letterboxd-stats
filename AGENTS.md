@@ -54,7 +54,10 @@ Canonical source: [`standards/code-quality.md`](standards/code-quality.md). Summ
 - Errors typed and surfaced; never swallowed.
 - Tests co-located.
 
-Hard-enforced via ESLint (`eslint.config.js`). Refuse to write violating code; refactor instead. Exception: `src/components/ui` is vendored shadcn/ui code — do not refactor it to fit these limits.
+Hard-enforced via ESLint (`eslint.config.js`). Refuse to write violating code; refactor instead. Exceptions — do not refactor these to fit the limits:
+- `src/components/ui` — vendored shadcn/ui code.
+- `src/hooks/use-toast.ts` — vendored shadcn/ui boilerplate, unmodified.
+- `src/lib/countries.ts` — flat static code→name lookup table; a split adds no readability, only exists to satisfy a line count.
 
 ## Folder layout
 
