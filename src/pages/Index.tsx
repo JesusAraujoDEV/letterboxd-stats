@@ -1,28 +1,53 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Clapperboard } from "lucide-react";
 import FileUploadZone from "@/components/FileUploadZone";
 import Dashboard from "@/components/Dashboard";
+import OutdatedStatsBanner from "@/components/OutdatedStatsBanner";
 import type { MovieStats } from "@/types/stats";
 import { useMovies } from "@/context/MoviesContext";
+import { isStatsOutdated } from "@/lib/stats-freshness";
+
+const STATS_STORAGE_KEY = "letterboxdStats";
 
 const Index = () => {
   const [stats, setStats] = useState<MovieStats | null>(null);
+  const [isOutdated, setIsOutdated] = useState(false);
   const { setAllMovies } = useMovies();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("letterboxdStats");
+  const loadStoredStats = useCallback(() => {
+    const stored = localStorage.getItem(STATS_STORAGE_KEY);
     if (!stored) return;
     try {
       const parsed = JSON.parse(stored) as MovieStats;
       setStats(parsed);
+      setIsOutdated(isStatsOutdated(parsed));
     } catch {
-      localStorage.removeItem("letterboxdStats");
+      localStorage.removeItem(STATS_STORAGE_KEY);
     }
   }, []);
 
-  useEffect(() => {
+  const syncMovies = useCallback(() => {
     setAllMovies(stats?.allMovies ?? []);
   }, [setAllMovies, stats]);
+
+  const resetStats = useCallback(() => {
+    localStorage.removeItem(STATS_STORAGE_KEY);
+    setStats(null);
+    setIsOutdated(false);
+  }, []);
+
+  const handleUploadSuccess = useCallback((data: MovieStats) => {
+    setStats(data);
+    setIsOutdated(false);
+  }, []);
+
+  useEffect(() => {
+    loadStoredStats();
+  }, [loadStoredStats]);
+
+  useEffect(() => {
+    syncMovies();
+  }, [syncMovies]);
 
   return (
     <div className="min-h-screen bg-background text-text-main">
@@ -88,7 +113,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <FileUploadZone onUploadSuccess={setStats} />
+            <FileUploadZone onUploadSuccess={handleUploadSuccess} />
           </div>
         ) : (
           <div className="space-y-6">
@@ -97,15 +122,13 @@ const Index = () => {
                 Tu Resumen
               </h2>
               <button
-                onClick={() => {
-                  localStorage.removeItem("letterboxdStats");
-                  setStats(null);
-                }}
+                onClick={resetStats}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-primary-hover"
               >
                 Subir otro archivo
               </button>
             </div>
+            {isOutdated && <OutdatedStatsBanner onReupload={resetStats} />}
             <Dashboard data={stats} />
           </div>
         )}
