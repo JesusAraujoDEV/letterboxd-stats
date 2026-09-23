@@ -15,6 +15,7 @@ import type {
   DominantDecadeEntry,
   PremiereChaserEntry,
   RatingStreaks,
+  RewatchYearEntry,
 } from "./stats-extras";
 
 export interface MovieStats {
@@ -76,6 +77,7 @@ export interface MovieStats {
   dominantDecadeByWatchYear?: DominantDecadeEntry[];
   premiereChaserStats?: PremiereChaserEntry[];
   ratingStreaks?: RatingStreaks;
+  rewatchByYear?: RewatchYearEntry[];
 }
 
 export interface InteractedUser {

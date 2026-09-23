@@ -17,6 +17,7 @@ import StatsOverview from "./StatsOverview";
 import InsightStats from "./InsightStats";
 import MovieExtremes from "./MovieExtremes";
 import WatchYearBreakdown from "./WatchYearBreakdown";
+import RewatchByYear from "./RewatchByYear";
 import FranchiseAndStudios from "./FranchiseAndStudios";
 import type { MovieStats } from "@/types/stats";
 import { useScrollspy } from "@/hooks/use-scrollspy";
@@ -47,6 +48,7 @@ const Dashboard = ({ data }: DashboardProps) => {
           />
           <WatchedYearActivityChart watchedYearStats={data.watchedYearStats ?? []} />
           <WatchYearBreakdown {...data} />
+          <RewatchByYear {...data} />
         </div>
       </section>
 

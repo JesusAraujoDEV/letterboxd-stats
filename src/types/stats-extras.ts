@@ -106,3 +106,12 @@ export interface RatingStreaks {
   longestHighRatedStreak: number;
   longestLowRatedStreak: number;
 }
+
+export interface RewatchYearEntry {
+  year: string;
+  totalWatches: number;
+  firstWatches: number;
+  rewatches: number;
+  firstWatchPercentage: number;
+  rewatchPercentage: number;
+}
